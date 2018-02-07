@@ -4,7 +4,7 @@
   <ul>
     {% for leader in leaders %}
       <li>
-        <a href="{% url 'app_scripts_view' leader.script.id %}">{{ leader.script.name }}</a> &ndash; {{ leader.track.name }} &ndash; {{ leader.scores.time_taken }}
+        {{ leader.scores.time_taken }} &ndash; <a href="{% url 'app_scripts_view' leader.script.id %}">{{ leader.script.name }}</a> &ndash; {{ leader.track.name }}
       </li>
     {% endfor %}
   </ul>

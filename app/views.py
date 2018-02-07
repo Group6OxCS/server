@@ -16,3 +16,7 @@ def scripts_view(request, *, script_id):
             "scores": models.Score.objects.filter(script=script).order_by("track__name"),
             "children": models.Script.objects.filter(parent=script),
         })
+
+
+def scripts_new(request):
+    return render(request, "pages/scripts/new.html")

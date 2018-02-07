@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block extra_js %}
+  <script src="{% static "js/ace.js" %}"></script>
+  <script src="{% static "js/mode-python.js" %}"></script>
+  <script src="{% static "js/theme-github.js" %}"></script>
+  <script>
+    $('document').ready(function() {
+      var editor = ace.edit("code");
+      editor.setTheme("ace/theme/github");
+      editor.session.setMode("ace/mode/python");
+      editor.setAutoScrollEditorIntoView(true);
+      editor.setOptions({
+        minLines: 15,
+        maxLines: 50
+      });
+
+      $(window).on("beforeunload", function() {
+        if (editor.session.getLength() > 1 || editor.getValue()) {
+          return "Your script has not been submitted!"
+        }
+      })
+    })
+  </script>
+{% endblock %}
+
+{% block main %}
+  <form action="/your-name/" method="post">
+    {% csrf_token %}
+    <div class="col-xs-8">
+      <pre id="code"></pre><br/>
+      <input type="submit" value="Run" class="btn btn-primary pull-right" />
+    </div>
+    <div class="col-xs-4">
+      Useful info and stuff:
+      <pre>
+def main(car):
+    car.do_car_thing()
+      </pre>
+    </div>
+  </form>
+{% endblock %}
+
+

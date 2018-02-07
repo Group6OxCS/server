@@ -6,7 +6,7 @@ Instructions for running
 
 Requirements:
 
- - Python3 (tested using Python 3.6)
+ - Python 3.6+ (tested using Python 3.6.4)
 
 Execute in a terminal:
 
