@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <div>
+    <h1>{{ script.name }}</h1>
+    <h5>{% if script.parent %}{{ script.parent.name }}{% else %}No parent{% endif %}</h5>
+    <a class="btn btn-primary">Run</a>
+    <a class="btn btn-primary">Fork</a>
+  </div>
+  <h3>Code</h3>
+  <pre>{{ script.code }}</pre>
+
+  <h3>Scores</h3>
+  <ul>
+    {% for score in scores %}
+      <li>
+        {{ score.track.name }} &ndash; {{ score.scores.time_taken }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+

@@ -1,0 +1,6 @@
+mysqlclient
+Django
+django_compressor
+requests-toolbelt
+jsonfield
+

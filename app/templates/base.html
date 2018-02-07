@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}"{% if LANGUAGE_BIDI %} dir="rtl"{% endif %}>
+  {% load staticfiles compress cache %}
+
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group 6 &ndash; OxCS</title>
+    <link rel="shortcut icon" href="{% static "img/favicon.ico" %}">
+
+    {% compress css %}
+      <link rel="stylesheet" href="{% static "less/theme.less" %}" type="text/less">
+      {% block extra_css %}{% endblock %}
+    {% endcompress %}
+
+    {% compress js %}
+      <script src="{% static "js/jquery.js" %}"></script>
+      <script src="{% static "js/popper.js" %}"></script>
+      <script src="{% static "js/bootstrap.js" %}"></script>
+      {% block extra_js %}{% endblock %}
+    {% endcompress %}
+
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body id="{% block body_id %}body{% endblock %}">
+    {% block body_contents %}
+    <div class="navbar navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="row vertical-align">
+          <div class="col-xs-10">
+            <a class="title" href="/">Group 6 &ndash; OxCS</a>
+          </div>
+          <div class="col-xs-2">
+            <div class="navigation-right">
+              <a href="/new" class="btn btn-primary">New Script</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row page-top-row">
+        {% if messages %}
+          <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-dismissable alert-{{ message.tags }}" data-alert="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              {{ message }}
+            </div>
+          {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="row">
+        {% block main %}{% endblock %}
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+        </div>
+      </div>
+    </footer>
+
+    {% endblock %}
+  </body>
+</html>
