@@ -8,8 +8,8 @@
       Children:
       {% for child in children %}{% if forloop.last and forloop.counter0 > 0 %} and {% elif forloop.counter0 > 0 %}, {% endif %}<a href="{% url 'app_scripts_view' child.id %}">{{ child.name }}</a>{% endfor %}
     </h5>
-    <a class="btn btn-primary">Run</a>
-    <a class="btn btn-primary">Fork</a>
+    <a href="{% url 'app_scripts_run_existing' script.id %}" class="btn btn-primary">Run</a>
+    <a href="{% url 'app_scripts_fork' script.id %}" class="btn btn-primary">Fork</a>
   </div>
   <h3>Code</h3>
   <pre>{{ script.code }}</pre>

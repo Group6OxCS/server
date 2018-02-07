@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <h1>Code running...</h1>
+  <h3>Type in what you want, I'm sure your not cheating!</h3>
+  <form method="post">
+    {% csrf_token %}
+    <label for="track">Track:</label>
+    <input type="number" name="track" value="1" /><br />
+
+    <label for="scores">Scores (JSON):</label>
+    <textarea name="scores">{"time_taken": 1000}</textarea>
+
+    {% if script %}
+      <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
+    {% else %}
+      <input type="hidden" name="name" value="{{ name }}" />
+      <textarea name="code" style="display:none">{{ code }}</textarea>
+      <input type="hidden" name="parent" value="{{ parent }}" />
+
+      <input type="submit" value="Edit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_new' %}" />
+      <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit' %}" />
+    {% endif %}
+  </form>
+{% endblock %}
+
+

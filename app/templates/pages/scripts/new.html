@@ -19,18 +19,28 @@
 
       $(window).on("beforeunload", function() {
         if (editor.session.getLength() > 1 || editor.getValue()) {
-          return "Your script has not been submitted!"
+          return "Your script has not been submitted!";
         }
+      })
+
+      $("form").submit(function() {
+        $("#hiddencode").val(editor.getValue());
+        editor.setValue("");
       })
     })
   </script>
 {% endblock %}
 
 {% block main %}
-  <form action="/your-name/" method="post">
+  <form action="{% url 'app_scripts_run' %}" method="post">
     {% csrf_token %}
     <div class="col-xs-8">
-      <pre id="code"></pre><br/>
+      <label for="name">Name:</label>
+      <input type="text" name="name" value="{{ name }}" />
+      <pre id="code">{{ code }}</pre><br/>
+      <textarea name="code" id="hiddencode" style="display:none"></textarea>
+      <input type="hidden" name="parent" value="{{ parent.id }}" />
+
       <input type="submit" value="Run" class="btn btn-primary pull-right" />
     </div>
     <div class="col-xs-4">
