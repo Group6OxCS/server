@@ -13,5 +13,6 @@ def scripts_view(request, *, script_id):
     script = get_object_or_404(models.Script, id=script_id)
     return render(request, "pages/scripts/view.html", {
             "script": script,
-            "scores": models.Score.objects.filter(script=script).order_by("track__name")
+            "scores": models.Score.objects.filter(script=script).order_by("track__name"),
+            "children": models.Script.objects.filter(parent=script),
         })
