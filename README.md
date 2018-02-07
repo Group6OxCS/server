@@ -12,7 +12,13 @@ Execute in a terminal:
 
 ```bash
 ./update_requirements
-./manage runserver
+./manage.py migrate
+```
+
+To run the server:
+
+```bash
+./manage.py runserver
 ```
 
 Navigate to `localhost:800`.
