@@ -10,6 +10,7 @@
 
     {% compress css %}
       <link rel="stylesheet" href="{% static "less/theme.less" %}" type="text/less">
+      <link rel="stylesheet" href="{% static "css/highlight-github.css" %}" type="text/css">
       {% block extra_css %}{% endblock %}
     {% endcompress %}
 
@@ -17,6 +18,8 @@
       <script src="{% static "js/jquery.js" %}"></script>
       <script src="{% static "js/popper.js" %}"></script>
       <script src="{% static "js/bootstrap.js" %}"></script>
+      <script src="{% static "js/highlight.pack.js" %}"></script>
+      <script>hljs.initHighlightingOnLoad();</script>
       {% block extra_js %}{% endblock %}
     {% endcompress %}
 
