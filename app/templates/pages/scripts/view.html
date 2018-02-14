@@ -3,6 +3,7 @@
 {% block main %}
   <div>
     <h1>{{ script.name }}</h1>
+    <h4>Written in {{ script.language.name }}</h4>
     <h5>Parent: {% if script.parent %}<a href="{% url 'app_scripts_view' script.parent.id %}">{{ script.parent.name }}</a>{% else %}None{% endif %}</h5>
     <h5>
       Children:
@@ -12,7 +13,7 @@
     <a href="{% url 'app_scripts_fork' script.id %}" class="btn btn-primary">Fork</a>
   </div>
   <h3>Code</h3>
-  <pre><code class="python">{{ script.code }}</code></pre>
+  <pre><code class="{{ script.language.highlightjs_code }}">{{ script.code }}</code></pre>
 
   <h3>Scores</h3>
   <ul>

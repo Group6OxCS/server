@@ -12,9 +12,24 @@ class Track(models.Model):
         return self.name
 
 
+class Language(models.Model):
+    name = models.CharField(unique=True, max_length=30)
+    runtime = models.CharField(max_length=30)
+    ace_code = models.CharField(max_length=30)
+    highlightjs_code = models.CharField(max_length=30)
+    help_text = models.TextField(blank=True)
+
+    def __repr__ (self):
+        return f"Language(name={self.name!r}, runtime={self.runtime!r})"
+
+    def __str__ (self):
+        return self.name
+
+
 class Script(models.Model):
     name = models.CharField(unique=True, max_length=30)
     parent = models.ForeignKey("self", null=True, default=None, blank=True, on_delete=models.SET_NULL)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     code = models.TextField()
 
     def __repr__ (self):

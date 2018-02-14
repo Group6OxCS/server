@@ -25,24 +25,32 @@ def scripts_new(request, *, parent_id=None):
     name = ""
     code = ""
     parent = None
+    language = models.Language.objects.first()
 
     # Already editing, extract data from POST
     if request.method == "POST":
-        name = request.POST.get("name", "")
-        code = request.POST.get("code", "")
-        if request.POST.get("parent"):
+        if any(attr not in request.POST for attr in ("name", "code", "parent", "language")):
+            return HttpResponseBadRequest()
+
+        name = request.POST["name"]
+        code = request.POST["code"]
+        if request.POST["parent"]:
             parent = get_object_or_404(models.Script, id=request.POST["parent"])
+        language = get_object_or_404(models.Language, id=request.POST["language"])
 
     # Forking another script
     elif parent_id:
         parent = get_object_or_404(models.Script, id=parent_id)
         name = f"Fork of {parent.name}"
         code = parent.code
+        language = parent.language
 
     return render(request, "pages/scripts/new.html", {
             "name": name,
             "code": code,
-            "parent": parent
+            "parent": parent,
+            "language": language,
+            "languages": models.Language.objects.all()
         })
 
 
@@ -50,20 +58,27 @@ def scripts_run(request, *, script_id=None):
     # Run of a new script
     if request.method == "POST":
         if (not request.POST.get("name")
-            or not request.POST.get("code")):
-            return HttpResponseBadRequest()
+            or not request.POST.get("code")
+            or "parent" not in request.POST
+            or not request.POST.get("language")):
+                return HttpResponseBadRequest()
 
         script = None
         name = request.POST["name"]
         code = request.POST["code"]
-        parent = request.POST["parent"]
+        if request.POST["parent"]:
+            parent = get_object_or_404(models.Script, id=request.POST["parent"])
+        else:
+            parent = None
+        language = get_object_or_404(models.Language, id=request.POST["language"])
 
     # Run of an existing script
     elif script_id:
         script = get_object_or_404(models.Script, id=script_id)
         name = script.name
         code = script.code
-        parent = None
+        language = script.language
+        parent = script.parent
 
     else:
         return HttpResponseBadRequest()
@@ -72,7 +87,8 @@ def scripts_run(request, *, script_id=None):
             "script": script,
             "name": name,
             "code": code,
-            "parent": parent
+            "parent": parent,
+            "language": language
         })
 
 
@@ -89,8 +105,10 @@ def scripts_submit(request, *, script_id=None):
     # Submission of a new script
     else:
         if (not request.POST.get("name")
-            or not request.POST.get("code")):
-            return HttpResponseBadRequest()
+            or not request.POST.get("code")
+            or "parent" not in request.POST
+            or not request.POST.get("language")):
+                return HttpResponseBadRequest()
 
         name = request.POST["name"]
         code = request.POST["code"]
@@ -98,7 +116,8 @@ def scripts_submit(request, *, script_id=None):
             parent = get_object_or_404(models.Script, id=request.POST["parent"])
         else:
             parent = None
-        script = models.Script(name=name, code=code, parent=parent)
+        language = get_object_or_404(models.Language, id=request.POST["language"])
+        script = models.Script(name=name, code=code, language=language, parent=parent)
         script.save()
 
     scores = request.POST["scores"]
