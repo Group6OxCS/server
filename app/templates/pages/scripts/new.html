@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load staticfiles %}
+{% load staticfiles app %}
 
 {% block extra_js %}
   <script src="{% static "ace/ace.js" %}"></script>
@@ -48,7 +48,7 @@
       <label for="name">Language:</label>
       <select name="language" id="language-selector">
         {% for lang in languages %}
-          <option value="{{ lang.id }}" data_ace_code="{{ lang.ace_code }}" data_language_info="{{ lang.help_text }}" {% if lang == language %}selected{% endif %}>{{ lang.name }}</option>
+          <option value="{{ lang.id }}" data_ace_code="{{ lang.ace_code }}" data_language_info="{{ lang.help_text_file|load_docs }}" {% if lang == language %}selected{% endif %}>{{ lang.name }}</option>
         {% endfor %}
       </select>
       <pre id="code">{{ code }}</pre><br/>
@@ -59,7 +59,7 @@
     </div>
     <div class="col-xs-4">
       <h3>Useful info and stuff:</h3>
-      <div id="language-info">{{ language.help_text|safe }}</div>
+      <div id="language-info">{{ language.help_text_file|load_docs|safe }}</div>
     </div>
   </form>
 {% endblock %}

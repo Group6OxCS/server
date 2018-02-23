@@ -17,7 +17,7 @@ class Language(models.Model):
     runtime = models.CharField(max_length=30)
     ace_code = models.CharField(max_length=30)
     highlightjs_code = models.CharField(max_length=30)
-    help_text = models.TextField(blank=True)
+    help_text_file = models.CharField(max_length=30)
 
     def __repr__ (self):
         return f"Language(name={self.name!r}, runtime={self.runtime!r})"
