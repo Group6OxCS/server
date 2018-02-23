@@ -1,0 +1,53 @@
+@game-width: 960px;
+@game-height: 600px;
+@game-margin: 20px;
+@game-loading-width: 200px;
+@game-loading-color: white;
+@game-loading-bar-height: 20px;
+@game-loading-bar-border-thickness: 2px;
+
+.game-container {
+    position: relative;
+    background: #231f20;
+    height: @game-height + @game-margin;
+    min-width: @game-width + @game-margin;
+
+    #gameContainer {
+        width: @game-width;
+        height: @game-height;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .loading-progress {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        .lp-text {
+            color: @game-loading-color;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .lp-bar {
+            width: @game-loading-width;
+            height: @game-loading-bar-height;
+            border: @game-loading-color @game-loading-bar-border-thickness solid;
+            border-radius: @game-loading-bar-border-thickness;
+            position: relative;
+
+            .lp-bar-inner {
+                height: @game-loading-bar-height - @game-loading-bar-border-thickness * 2 + 2px;
+                position: absolute;
+                left: -1px;
+                top: -1px;
+                width: 0%;
+                background: @game-loading-color;
+            }
+        }
+    }
+}

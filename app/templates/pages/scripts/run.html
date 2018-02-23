@@ -1,9 +1,44 @@
 {% extends "base.html" %}
 
+{% load staticfiles %}
+
+{% block extra_js %}
+    <script src="{% static "Build/UnityLoader.js" %}"></script>
+    <script>
+      var gameInstance;
+      function unityProgress(gameInstance, progress) {
+        if (progress == 1) {
+          $(".loading-progress").hide();
+        }
+        else {
+          $(".lp-bar-inner").width(progress * 100 + "%");
+        }
+      }
+
+      function loadUnity() {
+        $(".lp-text").text("Oh hai, i iz loading ur gamez...")
+        gameInstance = UnityLoader.instantiate("gameContainer",
+                                               "{% static "Build/nodev.json" %}",
+                                               {onProgress: unityProgress});
+      }
+
+      $('document').ready(function() {
+        loadUnity();
+      });
+    </script>
+{% endblock %}
+
 {% block main %}
-  <h1>Code running...</h1>
   <h2>Using runtime {{ language.runtime }}</h2>
-  <h3>Type in what you want, I'm sure your not cheating!</h3>
+
+  <div class="game-container">
+    <div id="gameContainer"></div>
+    <div class="loading-progress">
+      <div class="lp-text">Zzzzz...</div>
+      <div class="lp-bar"><div class="lp-bar-inner"></div></div>
+    </div>
+  </div>
+
   <form method="post">
     {% csrf_token %}
     <label for="track">Track:</label>
@@ -25,5 +60,3 @@
     {% endif %}
   </form>
 {% endblock %}
-
-
