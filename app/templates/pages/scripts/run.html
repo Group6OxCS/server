@@ -22,6 +22,24 @@
                                                {onProgress: unityProgress});
       }
 
+      window.unityBridge = {
+        query_env: function (data) {
+          var dataobj = JSON.parse(data);
+          console.log("QE", dataobj);
+          return JSON.stringify({
+
+          });
+        },
+        control: function (data) {
+          return JSON.stringify({
+            forward: true,
+            backward: false,
+            left: false,
+            right: false
+          });
+        }
+      };
+
       $('document').ready(function() {
         loadUnity();
       });
