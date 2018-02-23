@@ -4,8 +4,13 @@
 
 {% block extra_js %}
     <script src="{% static "Build/UnityLoader.js" %}"></script>
+    <script src="{% static "runtimes/utils.js" %}"></script>
     <script>
       var gameInstance;
+      var runtimeInstance;
+      var scriptingError = false;
+      getRuntime = undefined;
+
       function unityProgress(gameInstance, progress) {
         if (progress == 1) {
           $(".loading-progress").hide();
@@ -16,10 +21,33 @@
       }
 
       function loadUnity() {
-        $(".lp-text").text("Oh hai, i iz loading ur gamez...")
+        $(".lp-text").text("Loading Unity...");
+        unityProgress(0);
         gameInstance = UnityLoader.instantiate("gameContainer",
                                                "{% static "Build/nodev.json" %}",
                                                {onProgress: unityProgress});
+      }
+
+      function runtimeProgress(progress, text) {
+        $(".lp-bar-inner").width(progress * 100 + "%");
+        $(".lp-text").text(text);
+      }
+
+      function notifyError(text) {
+        scriptingError = true;
+      }
+
+      function loadRuntime() {
+        getRuntime("{% static "runtimes/" %}", runtimeProgress, function (ri) {
+          runtimeInstance = ri;
+          console.log("Executing User Script");
+          runtimeProgress(0.9, "Executing Script...");
+          runtimeInstance.load($("#hiddencode").val(), function () {
+            runtimeProgress(1, "Verifying Script...");
+            runtimeInstance.verify(loadUnity, notifyError);
+          }, notifyError);
+
+        });
       }
 
       window.unityBridge = {
@@ -27,23 +55,22 @@
           var dataobj = JSON.parse(data);
           console.log("QE", dataobj);
           return JSON.stringify({
-
+            track: 1
           });
         },
-        control: function (data) {
-          return JSON.stringify({
-            forward: true,
-            backward: false,
-            left: false,
-            right: false
-          });
+        new_data: function (data, callback) {
+          runtimeInstance.new_data(data, callback, notifyError);
         }
       };
 
       $('document').ready(function() {
-        loadUnity();
+        loadRuntime();
       });
     </script>
+{% endblock %}
+
+{% block extra_head %}
+  <script src="{% static "runtimes/" %}{{ language.runtime }}"></script>
 {% endblock %}
 
 {% block main %}
@@ -69,7 +96,7 @@
       <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
     {% else %}
       <input type="hidden" name="name" value="{{ name }}" />
-      <textarea name="code" style="display:none">{{ code }}</textarea>
+      <textarea name="code" id="hiddencode" style="display:none">{{ code }}</textarea>
       <input type="hidden" name="parent" value="{{ parent.id }}" />
       <input type="hidden" name="language" value="{{ language.id }}" />
 

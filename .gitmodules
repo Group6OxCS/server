@@ -1,0 +1,3 @@
+[submodule "app/static/runtimes/python2/pypyjs-release"]
+	path = app/static/runtimes/python2/pypyjs-release
+	url = https://github.com/pypyjs/pypyjs-release.git
