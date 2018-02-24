@@ -76,12 +76,23 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if input("Use external database [y/n]? ").lower().startswith("y"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': 'den1.mysql2.gear.host',
+            'NAME': 'g6csox',
+            'USER': 'g6csox',
+            'PASSWORD': input("Database password: "),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 
 # Password validation
