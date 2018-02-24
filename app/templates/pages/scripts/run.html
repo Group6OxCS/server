@@ -7,9 +7,22 @@
     <script src="{% static "runtimes/utils.js" %}"></script>
     <script>
       var gameInstance;
-      var runtimeInstance;
-      var scriptingError = false;
-      getRuntime = undefined;
+
+      var callbacks = {
+        ready: function (data) {
+          runtimeWorker.postMessage({type: "load", code: $("#hiddencode").val()});
+        },
+        loaded: function (data) {
+          runtimeWorker.postMessage({type: "verify"});
+        },
+        verified: function (data) {
+          loadUnity();
+        },
+        progress: function (data) {
+          $(".lp-bar-inner").width(data.progress * 100 + "%");
+          $(".lp-text").text(data.text);
+        }
+      };
 
       function unityProgress(gameInstance, progress) {
         if (progress == 1) {
@@ -28,28 +41,6 @@
                                                {onProgress: unityProgress});
       }
 
-      function runtimeProgress(progress, text) {
-        $(".lp-bar-inner").width(progress * 100 + "%");
-        $(".lp-text").text(text);
-      }
-
-      function notifyError(text) {
-        scriptingError = true;
-      }
-
-      function loadRuntime() {
-        getRuntime("{% static "runtimes/" %}", runtimeProgress, function (ri) {
-          runtimeInstance = ri;
-          console.log("Executing User Script");
-          runtimeProgress(0.9, "Executing Script...");
-          runtimeInstance.load($("#hiddencode").val(), function () {
-            runtimeProgress(1, "Verifying Script...");
-            runtimeInstance.verify(loadUnity, notifyError);
-          }, notifyError);
-
-        });
-      }
-
       window.unityBridge = {
         query_env: function (data) {
           var dataobj = JSON.parse(data);
@@ -59,18 +50,24 @@
           });
         },
         new_data: function (data, callback) {
-          runtimeInstance.new_data(data, callback, notifyError);
+          callbacks.cmds = function (data) {
+            callback(data.cmds);
+          }
+          runtimeWorker.postMessage({type: "new_data", data: data});
         }
       };
 
       $('document').ready(function() {
-        loadRuntime();
+        runtimeWorker.addEventListener("message", function (e) {
+          callbacks[e.data.type](e.data);
+        });
+        runtimeWorker.postMessage({type: "begin"});
       });
     </script>
 {% endblock %}
 
 {% block extra_head %}
-  <script src="{% static "runtimes/" %}{{ language.runtime }}"></script>
+  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");</script>
 {% endblock %}
 
 {% block main %}
@@ -94,6 +91,7 @@
 
     {% if script %}
       <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
+      <textarea name="code" id="hiddencode" style="display:none">{{ script.code }}</textarea>
     {% else %}
       <input type="hidden" name="name" value="{{ name }}" />
       <textarea name="code" id="hiddencode" style="display:none">{{ code }}</textarea>

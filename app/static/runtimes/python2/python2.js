@@ -1,38 +1,45 @@
-function getRuntime(basepath, progress, finished) {
-    pypyjs = undefined;
+pypyjs = undefined;
+var postMessage = this.postMessage;
 
-    function check_ready() {
-        if (pypyjs === undefined) {
-            setTimeout(check_ready, 100);
-            return;
-        }
-
-        progress(0.3, "Loading Python 2 Runtime...");
-        pypyjs.ready().then(function() {
-            finished({
-                load: function (script, done, err) {
-                    pypyjs.exec(script).then(done, err);
-                },
-                verify: function (done, err) {
-                    done();
-                },
-                new_data: function (data, done, err) {
-                    pypyjs.eval("control(" + JSON.stringify(data) + ")").then(function (ret) {
-                        if (typeof(ret) === "string") {
-                            done(ret);
-                        }
-                        else {
-                            err("Bad type");
-                        }
-                    }, err);
-                }
-            })
+var callbacks = {
+    begin: function (data) {
+        postMessage({type: "progress", progress: 0, text: "Loading Python 2 Runtime..."});
+        importScripts("pypyjs-release/lib/Promise.min.js");
+        importScripts("pypyjs-release/lib/FunctionPromise.js");
+        importScripts("pypyjs-release/lib/pypyjs.js");
+        postMessage({type: "progress", progress: 0.3, text: "Loading Python 2 Runtime..."});
+        pypyjs.ready().then(function () {
+            postMessage({type: "ready"});
         })
+    },
+    load: function (data) {
+        postMessage({type: "progress", progress: 0.8, text: "Executing Script..."});
+        pypyjs.exec(data.code).then(function () {
+            postMessage({type: "loaded"});
+        }).catch(function (err) {
+            postMessage({type: "loaded", err: err.toString()});
+        });
+    },
+    verify: function (data) {
+        postMessage({type: "progress", progress: 0.9, text: "Verifying Script..."});
+        postMessage({type: "verified"});
+    },
+    new_data: function (data) {
+        pypyjs.eval("control(" + JSON.stringify(data.data) + ")").then(function (ret) {
+            if (typeof(ret) === "string") {
+                postMessage({type: "cmds", cmds: ret});
+            }
+            else {
+                postMessage({type: "cmds", err: "Bad type"});
+            }
+        }).catch(function (err) {
+            postMessage({type: "cmds", err: err.toString()});
+        });
     }
+};
 
-    progress(0, "Loading Python 2 Runtime...");
-    safeLoadScript(basepath + "python2/pypyjs-release/lib/Promise.min.js");
-    safeLoadScript(basepath + "python2/pypyjs-release/lib/FunctionPromise.js");
-    safeLoadScript(basepath + "python2/pypyjs-release/lib/pypyjs.js");
-    check_ready();
-}
+self.addEventListener("message", function(e) {
+    callbacks[e.data.type](e.data);
+}, false);
+
+console.log(this.postMessage);
