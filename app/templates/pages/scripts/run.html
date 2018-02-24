@@ -13,6 +13,7 @@
           runtimeWorker.postMessage({type: "load", code: $("#hiddencode").val()});
         },
         loaded: function (data) {
+          console.log(data);
           runtimeWorker.postMessage({type: "verify"});
         },
         verified: function (data) {

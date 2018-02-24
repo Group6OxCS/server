@@ -1,4 +1,4 @@
-var extractedControl = undefined;
+var extractedControl;
 var postMessage = this.postMessage;
 
 var callbacks = {

@@ -1,4 +1,3 @@
-pypyjs = undefined;
 var postMessage = this.postMessage;
 
 var callbacks = {
