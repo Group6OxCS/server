@@ -41,5 +41,3 @@ var callbacks = {
 self.addEventListener("message", function(e) {
     callbacks[e.data.type](e.data);
 }, false);
-
-console.log(this.postMessage);
