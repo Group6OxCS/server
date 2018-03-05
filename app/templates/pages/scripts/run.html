@@ -55,6 +55,11 @@
             callback(data.cmds);
           }
           runtimeWorker.postMessage({type: "new_data", data: data});
+        },
+        end_level: function (data) {
+          $(".game-container").hide();
+          $("#hiddenscores").val(data);
+          $("#hiddenform").show();
         }
       };
 
@@ -72,8 +77,6 @@
 {% endblock %}
 
 {% block main %}
-  <h2>Using runtime {{ language.runtime }}</h2>
-
   <div class="game-container">
     <div id="gameContainer"></div>
     <div class="loading-progress">
@@ -82,13 +85,12 @@
     </div>
   </div>
 
-  <form method="post">
+  <form id="hiddenform" method="post" style="display:none">
     {% csrf_token %}
     <label for="track">Track:</label>
     <input type="number" name="track" value="1" /><br />
 
-    <label for="scores">Scores (JSON):</label>
-    <textarea name="scores">{"time_taken": 1000}</textarea>
+    <textarea name="scores" id="hiddenscores"></textarea>
 
     {% if script %}
       <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit_existing' script.id %}" />

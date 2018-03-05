@@ -1,5 +1,5 @@
 {% extends "base.html" %}
 
 {% block main %}
-  <h1>Score of {{ score.scores.time_taken }} for <a href={% url 'app_scripts_view' script.id %}>{{ script.name }}</a> submitted!</h1>
+  <h1>Score of {{ score.scores.time }} for <a href={% url 'app_scripts_view' script.id %}>{{ script.name }}</a> submitted!</h1>
 {% endblock %}

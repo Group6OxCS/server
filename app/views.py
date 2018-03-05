@@ -5,7 +5,7 @@ from . import models
 
 
 def leaderboard(request):
-    objs = sorted(models.Score.objects.all(), key=lambda obj: obj.scores["time_taken"])
+    objs = sorted(models.Score.objects.all(), key=lambda obj: obj.scores.get("time", 0))
     return render(request, "pages/leaderboard.html", {
             "leaders": objs
         })
@@ -124,8 +124,7 @@ def scripts_submit(request, *, script_id=None):
     track = get_object_or_404(models.Track, id=request.POST["track"])
 
     try:
-        jsscores = json.loads(scores)
-        scores = {"time_taken": int(jsscores["time_taken"])}
+        scores = json.loads(scores)
     except Exception:
         return HttpResponseBadRequest()
 
