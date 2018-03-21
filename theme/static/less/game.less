@@ -5,10 +5,12 @@
 @game-loading-color: white;
 @game-loading-bar-height: 20px;
 @game-loading-bar-border-thickness: 2px;
+@game-background: #231f20;
+@game-error: #ea524f;
 
 .game-container {
     position: relative;
-    background: #231f20;
+    background: @game-background;
     height: @game-height + @game-margin;
     min-width: @game-width + @game-margin;
 
@@ -48,6 +50,21 @@
                 width: 0%;
                 background: @game-loading-color;
             }
+        }
+    }
+
+    .game-error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: @game-loading-bar-border-thickness solid @game-error;
+        padding: 8px;
+        background: @game-background;
+
+        .game-error-text {
+            text-align: center;
+            color: @game-error;
         }
     }
 }

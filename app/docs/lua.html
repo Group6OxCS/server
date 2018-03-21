@@ -1,10 +1,17 @@
 <h4>Basic Structure</h4>
-<pre><code>function main(car)
+<pre><code>function control(car)
     -- Your code
 end</code></pre>
-<h4>API reference</h4>
+<h4>Sensors</h4>
+<code>car.speed</code>: Current car speed<br />
+<code>car.danger</code>: Obstacle in front of the car<br />
+<h4>Controls</h4>
+<code>car.forward</code>: Go forward<br />
+<code>car.backward</code>: Go backward<br />
 <code>car.left</code>: Go left<br />
 <code>car.right</code>: Go right<br />
-<code>car.up</code>: Fly<br />
-<h4>Handy Constructions</h4>
-Get angle to waypoint: <code>math.deg(math.atan2(data["waypoint"][1], data["waypoint"][0]))</code>
+<h4>Notes</h4>
+<code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output.
+<h4>Available Libraries</h4>
+<a href="https://github.com/kikito/inspect.lua"><code>inspect.lua</code></a>
+<a href="https://github.com/rxi/json.lua"><code>json.lua</code></a>
