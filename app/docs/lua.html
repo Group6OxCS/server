@@ -3,19 +3,25 @@
     -- Your code
 end</code></pre>
 <h4>Sensors</h4>
-<code>car.speed</code>: Current car speed<br />
-<code>car.obstacle_detection_left</code>: Distance to obstacles to the left of the car<br />
-<code>car.obstacle_detection_center</code>: Distance to obstacles in front of the car<br />
-<code>car.obstacle_detection_right</code>: Distance to obstacles to the right of the car<br />
-<code>car.waypoint_distance</code>: Distance to next waypoint<br />
-<code>car.waypoint_bearing</code>: Bearing to next waypoint<br />
+<code>car.speed: float</code>: Current car speed<br />
+<code>car.obstacle_detection_far_left: float</code>: Distance to obstacles to the far left of the car (-45 to -20 degrees)<br />
+<code>car.obstacle_detection_left: float</code>: Distance to obstacles to the left of the car (-20 to -2 degrees)<br />
+<code>car.obstacle_detection_center: float</code>: Distance to obstacles in front of the car (-2 to 2 degrees)<br />
+<code>car.obstacle_detection_right: float</code>: Distance to obstacles to the right of the car (2 to 20 degrees)<br />
+<code>car.obstacle_detection_far_right: float</code>: Distance to obstacles to the far right of the car (20 to 45 degrees)<br />
+<code>car.waypoint_distance: float</code>: Distance to next waypoint<br />
+<code>car.waypoint_bearing: float</code>: Bearing to next waypoint<br />
+<code>car.future_waypoint_distance: float</code>: Distance to waypoint after the current one<br />
+<code>car.future_waypoint_bearing: float</code>: Bearing to waypoint after the current one<br />
 <h4>Controls</h4>
-<code>car.forward</code>: Go forward<br />
-<code>car.backward</code>: Go backward<br />
-<code>car.left</code>: Go left<br />
-<code>car.right</code>: Go right<br />
+<code>car.forward: boolean</code>: Go forward<br />
+<code>car.backward: boolean</code>: Go backward<br />
+<code>car.left: boolean</code>: Go left<br />
+<code>car.right: boolean</code>: Go right<br />
+<code>car.handbreak: boolean</code>: Break<br />
+<code>car.message: any, converted to string</code>: Debugging message, displayed at top<br />
 <h4>Notes</h4>
 <code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output.
-<h4>Available Libraries</h4>
+<h4>Available Libraries (in addition to core libraries)</h4>
 <a href="https://github.com/kikito/inspect.lua"><code>inspect.lua</code></a>
 <a href="https://github.com/rxi/json.lua"><code>json.lua</code></a>

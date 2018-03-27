@@ -80,6 +80,11 @@ local Car_attribute_setters = {
     local priv = getmetatable(self).priv
     assert(bool == true or bool == false)
     priv.handbreak = bool
+  end,
+
+  message = function(self, v)
+    local priv = getmetatable(self).priv
+    priv.message = tostring(v)
   end
 }
 
@@ -90,6 +95,7 @@ function Car:new()
       left = false,
       right = false,
       handbreak = false,
+      message = ""
   } -- private attributes in instance
   local self = make_proxy(Car, priv, nil, Car_attribute_setters, true)
   return self
@@ -114,7 +120,8 @@ function from_car(car)
         backward = car.backward,
         left = car.left,
         right = car.right,
-        handbreak = car.handbreak
+        handbreak = car.handbreak,
+        message = car.message
     })
 end
 
