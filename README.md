@@ -21,7 +21,7 @@ To run the server:
 ./manage.py runserver
 ```
 
-Navigate to `localhost:800`.
+Navigate to `localhost:8000`.
 
 Modifying data
 --------------
