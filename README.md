@@ -15,6 +15,12 @@ Execute in a terminal:
 ./manage.py migrate
 ```
 
+Optional: If you want some starter data, get a dump from @matsjoyce and then do:
+
+```bash
+cat dump.sql | sqlite3 db.sqlite
+```
+
 To run the server:
 
 ```bash
