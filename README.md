@@ -32,4 +32,4 @@ Create a new user account:
 ./manage.py createsuperuser
 ```
 
-Start the web server as above, and go to `localhost:800/admin`. Log in and you will be presented with an interface for adding / removing database items.
+Start the web server as above, and go to `localhost:8000/admin`. Log in and you will be presented with an interface for adding / removing database items.
