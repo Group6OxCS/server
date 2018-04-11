@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+{% load getattribute %}
+
+{% block extra_js %}
+    <script>
+      $(document).ready(function() {
+        $("table")
+          .tablesorter({widgets: ['zebra'], sortList: [[0, 0]]});
+      });
+    </script>
+{% endblock %}
+
 {% block main %}
   <div>
     <h1>{{ script.name }}</h1>
@@ -16,11 +27,24 @@
   <pre><code class="{{ script.language.highlightjs_code }}">{{ script.code }}</code></pre>
 
   <h3>Scores</h3>
-  <ul>
-    {% for score in scores %}
-      <li>
-        {{ score.track.name }} &ndash; {{ score.scores.time }}
-      </li>
-    {% endfor %}
-  </ul>
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th>Track</th>
+        {% for title in score_titles %}
+          <th>{{ title }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for track, score in scores %}
+        <tr>
+          <td>{{ track.name }}</td>
+          {% for attr in score_attrs %}
+            <td>{{ score.scores|getattribute:attr }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

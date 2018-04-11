@@ -1,22 +1,65 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseBadRequest
+from django.db import transaction
 import json
 from . import models
 
 
-def leaderboard(request):
-    objs = sorted(models.Score.objects.all(), key=lambda obj: obj.scores.get("time", 0))
+SCORES_ATTRS = ["time", "fuel_used", "top_speed"]
+SCORES_TITLES = ["Time (s)", "Fuel Used", "Top Speed (m/s)"]
+
+
+def index(request):
+    return redirect("app_leaderboard")
+
+
+def leaderboard(request, *, track_id=None):
+    if track_id is None:
+        track = models.Track.objects.all()[0]
+    else:
+        track = get_object_or_404(models.Track, id=track_id)
+    scripts = models.Script.objects.all()
+    scores = {x.script.id: x for x in models.Score.objects.filter(track=track)}
+    objs = [(s, scores.get(s.id)) for s in scripts]
+
     return render(request, "pages/leaderboard.html", {
-            "leaders": objs
+            "leaders": objs,
+            "track": track,
+            "tracks": models.Track.objects.all(),
+            "score_attrs": SCORES_ATTRS,
+            "score_titles": SCORES_TITLES
+        })
+
+
+def inheritance(request, *, track_id=None):
+    if track_id is None:
+        track = models.Track.objects.all()[0]
+    else:
+        track = get_object_or_404(models.Track, id=track_id)
+    scripts = models.Script.objects.all()
+    scores = {x.script.id: x for x in models.Score.objects.filter(track=track)}
+    objs = [(s, scores.get(s.id)) for s in scripts]
+
+    return render(request, "pages/inheritance.html", {
+            "scripts": objs,
+            "track": track,
+            "tracks": models.Track.objects.all(),
+            "score_attrs": SCORES_ATTRS,
+            "score_titles": SCORES_TITLES
         })
 
 
 def scripts_view(request, *, script_id):
     script = get_object_or_404(models.Script, id=script_id)
+    tracks = models.Track.objects.all()
+    scores = {x.track.id: x for x in models.Score.objects.filter(script=script)}
+    objs = [(t, scores.get(t.id)) for t in tracks]
     return render(request, "pages/scripts/view.html", {
             "script": script,
-            "scores": models.Score.objects.filter(script=script).order_by("track__name"),
+            "scores": objs,
             "children": models.Script.objects.filter(parent=script),
+            "score_attrs": SCORES_ATTRS,
+            "score_titles": SCORES_TITLES
         })
 
 
@@ -94,8 +137,7 @@ def scripts_run(request, *, script_id=None):
 
 def scripts_submit(request, *, script_id=None):
     if (request.method != "POST"
-        or not request.POST.get("scores")
-        or not request.POST.get("track")):
+        or not request.POST.get("scores")):
         return HttpResponseBadRequest()
 
     # Additional score of an existing script
@@ -121,15 +163,18 @@ def scripts_submit(request, *, script_id=None):
         script.save()
 
     scores = request.POST["scores"]
-    track = get_object_or_404(models.Track, id=request.POST["track"])
 
     try:
         scores = json.loads(scores)
+        track = get_object_or_404(models.Track, level=scores["track"])
     except Exception:
         return HttpResponseBadRequest()
 
-    score = models.Score(script=script, track=track, scores=scores)
-    score.save()
+    with transaction.atomic():
+        # Replace score for this track
+        models.Score.objects.filter(script=script, track=track).delete()
+        score = models.Score(script=script, track=track, scores=scores)
+        score.save()
 
     return render(request, "pages/scripts/submit.html", {
             "script": script,

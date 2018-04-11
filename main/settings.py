@@ -76,14 +76,14 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-if input("Use external database [y/n]? ").lower().startswith("y"):
+if os.environ.get("EXT_DB"):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'HOST': 'den1.mysql2.gear.host',
             'NAME': 'g6csox',
             'USER': 'g6csox',
-            'PASSWORD': input("Database password: "),
+            'PASSWORD': os.environ["EXT_DB"],
         }
     }
 else:

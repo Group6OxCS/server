@@ -2,26 +2,29 @@
 <pre><code>function control(car)
     -- Your code
 end</code></pre>
-<h4>Sensors</h4>
-<code>car.speed: float</code>: Current car speed<br />
-<code>car.obstacle_detection_far_left: float</code>: Distance to obstacles to the far left of the car (-45 to -20 degrees)<br />
-<code>car.obstacle_detection_left: float</code>: Distance to obstacles to the left of the car (-20 to -2 degrees)<br />
-<code>car.obstacle_detection_center: float</code>: Distance to obstacles in front of the car (-2 to 2 degrees)<br />
-<code>car.obstacle_detection_right: float</code>: Distance to obstacles to the right of the car (2 to 20 degrees)<br />
-<code>car.obstacle_detection_far_right: float</code>: Distance to obstacles to the far right of the car (20 to 45 degrees)<br />
-<code>car.waypoint_distance: float</code>: Distance to next waypoint<br />
-<code>car.waypoint_bearing: float</code>: Bearing to next waypoint<br />
-<code>car.future_waypoint_distance: float</code>: Distance to waypoint after the current one<br />
-<code>car.future_waypoint_bearing: float</code>: Bearing to waypoint after the current one<br />
+
 <h4>Controls</h4>
-<code>car.forward: boolean</code>: Go forward<br />
-<code>car.backward: boolean</code>: Go backward<br />
-<code>car.left: boolean</code>: Go left<br />
-<code>car.right: boolean</code>: Go right<br />
-<code>car.handbreak: boolean</code>: Break<br />
-<code>car.message: any, converted to string</code>: Debugging message, displayed at top<br />
+<code>car.steering: number</code>: Steering direction. -1 for left, 1 for right<br />
+<code>car.acceleration: number</code>: Acceleration. 1 for full forward, -1 for full reverse<br />
+<code>car.brake: number</code>: Break. 1 for full braking, 0 for no braking<br />
+<code>car.nitro: number</code>: Nitro boost. 1 for full boost, 0 for no boost<br />
+<code>car.message: string</code>: Debugging message, displayed at top<br />
+
+<h4>Sensors</h4>
+<code>car.speed: number</code>: Current car speed<br />
+<code>car.obstacle_detection_far_left: number</code>: Distance to obstacles to the far left of the car (-45 to -20 degrees)<br />
+<code>car.obstacle_detection_left: number</code>: Distance to obstacles to the left of the car (-20 to -2 degrees)<br />
+<code>car.obstacle_detection_center: number</code>: Distance to obstacles in front of the car (-2 to 2 degrees)<br />
+<code>car.obstacle_detection_right: number</code>: Distance to obstacles to the right of the car (2 to 20 degrees)<br />
+<code>car.obstacle_detection_far_right: number</code>: Distance to obstacles to the far right of the car (20 to 45 degrees)<br />
+<code>car.waypoint_distance: number</code>: Distance to next waypoint<br />
+<code>car.waypoint_bearing: number</code>: Bearing to next waypoint<br />
+<code>car.future_waypoint_distance: number</code>: Distance to waypoint after the current one<br />
+<code>car.future_waypoint_bearing: number</code>: Bearing to waypoint after the current one<br />
+
 <h4>Notes</h4>
-<code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output.
+<code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output. Using <code>car.message</code> may be better.
+
 <h4>Available Libraries (in addition to core libraries)</h4>
 <a href="https://github.com/kikito/inspect.lua"><code>inspect.lua</code></a>
 <a href="https://github.com/rxi/json.lua"><code>json.lua</code></a>

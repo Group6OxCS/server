@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% load staticfiles getattribute %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static "css/vis.min.css" %}" type="text/css">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/vis.min.js' %}"></script>
+    <script>
+      var network = null;
+      var nodes;
+      var edges;
+
+      function HSVtoRGB(h, s, v) {
+        var r, g, b, i, f, p, q, t;
+        if (arguments.length === 1) {
+            s = h.s, v = h.v, h = h.h;
+        }
+        i = Math.floor(h * 6);
+        f = h * 6 - i;
+        p = v * (1 - s);
+        q = v * (1 - f * s);
+        t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+          case 0: r = v, g = t, b = p; break;
+          case 1: r = q, g = v, b = p; break;
+          case 2: r = p, g = v, b = t; break;
+          case 3: r = p, g = q, b = v; break;
+          case 4: r = t, g = p, b = v; break;
+          case 5: r = v, g = p, b = q; break;
+        }
+        return {
+          r: Math.round(r * 255),
+          g: Math.round(g * 255),
+          b: Math.round(b * 255)
+        };
+    }
+
+      function destroy() {
+        if (network !== null) {
+          network.destroy();
+          network = null;
+        }
+      }
+
+      function draw() {
+        destroy();
+
+        nodes = new vis.DataSet([]);
+        edges = new vis.DataSet([]);
+
+        add_data(nodes, edges);
+
+        // create a network
+        var container = document.getElementById('graph');
+        var data = {
+          nodes: nodes,
+          edges: edges
+        };
+
+        var options = {
+          layout: {
+            hierarchical: {
+              sortMethod: "directed"
+            }
+          },
+          edges: {
+            smooth: true,
+            arrows: {to : true }
+          }
+        };
+        network = new vis.Network(container, data, options);
+
+        network.on("click", function (params) {
+          if (params.nodes.length === 1) {
+            var node = nodes.get(params.nodes[0]);
+            window.open(node.url);
+          }
+        });
+      }
+
+      function set_colors(attr) {
+        var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
+        nodes.forEach(function (v) {
+          var score = v.scores[attr];
+          if (score === undefined) {
+            return;
+          }
+          if (score > max) {
+            max = score;
+          }
+          if (score < min) {
+            min = score;
+          }
+        });
+        nodes.forEach(function (v) {
+          var score = v.scores[attr];
+          if (score === undefined) {
+            v.color = "gray";
+            v.label = v.name;
+          }
+          else {
+            var n = max == min ? 1 : (score - min) / (max - min);
+            var color = HSVtoRGB(0.1, 0.2 + (n * 0.8), 1);
+            v.color = "rgb(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ")";
+            v.label = v.name + "\n" + score;
+          }
+          nodes.update(v);
+        })
+      }
+
+      $(document).ready(function () {
+        draw();
+
+        $("#pickattr").change(function (e) {
+          set_colors(e.target.value);
+        })
+      });
+    </script>
+{% endblock %}
+
+{% block extra_head %}
+  <script>
+    function add_data(nodes, edges) {
+      nodes.add([
+      {% for script, score in scripts %}
+        {
+          id: {{ script.id }},
+          name: '{{ script.name }}',
+          url: "{% url 'app_scripts_view' script.id %}",
+          scores:
+            {% if score.scores %}
+              {{score.scores|safe}}
+            {% else %}
+              {}
+            {% endif %}
+        },
+      {% endfor %}
+      ]);
+      edges.add([
+      {% for script, score in scripts %}
+        {% if script.parent %}
+          {
+            from: {{ script.parent.id }},
+            to: {{script.id}}
+          },
+        {% endif %}
+      {% endfor %}
+      ]);
+      set_colors("{{ score_attrs.0 }}");
+    }
+  </script>
+{% endblock %}
+
+{% block main %}
+  <h1>Inheritance</h1>
+  <div class="tracks">
+    {% for a_track in tracks %}
+      <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
+    {% endfor %}
+  </div>
+  <label for="pickattr">Color by (darker means higher value):</label>
+  <select id="pickattr" name="pickattr">
+    {% for attr in score_attrs %}
+      <option value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</option>
+    {% endfor %}
+  </select>
+  <div id="graph" style="width: 800px; height: 500px; border: 1px solid lightgray;"></div>
+{% endblock %}
+

@@ -4,6 +4,7 @@ from jsonfield import JSONField
 
 class Track(models.Model):
     name = models.CharField(unique=True, max_length=30)
+    level = models.CharField(unique=True, max_length=30)
 
     def __repr__ (self):
         return f"Track(name={self.name!r})"
@@ -43,6 +44,9 @@ class Score(models.Model):
     script = models.ForeignKey(Script, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     scores = JSONField()
+
+    class Meta:
+        unique_together = ("script", "track")
 
     def __repr__ (self):
         return f"Score(script={self.script!r}, track={self.track!r}, scores={self.scores!r})"

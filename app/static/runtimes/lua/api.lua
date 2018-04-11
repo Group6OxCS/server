@@ -52,34 +52,24 @@ local Car = {}
 Car.__index = Car
 
 local Car_attribute_setters = {
-  forward = function(self, bool)
+  steering = function(self, v)
     local priv = getmetatable(self).priv
-    assert(bool == true or bool == false)
-    priv.forward = bool
+    priv.steering = tonumber(v)
   end,
 
-  backward = function(self, bool)
+  acceleration = function(self, v)
     local priv = getmetatable(self).priv
-    assert(bool == true or bool == false)
-    priv.backward = bool
+    priv.acceleration = tonumber(v)
   end,
 
-  left = function(self, bool)
+  brake = function(self, v)
     local priv = getmetatable(self).priv
-    assert(bool == true or bool == false)
-    priv.left = bool
+    priv.brake = tonumber(v)
   end,
 
-  right = function(self, bool)
+  nitro = function(self, v)
     local priv = getmetatable(self).priv
-    assert(bool == true or bool == false)
-    priv.right = bool
-  end,
-
-  handbreak = function(self, bool)
-    local priv = getmetatable(self).priv
-    assert(bool == true or bool == false)
-    priv.handbreak = bool
+    priv.nitro = tonumber(v)
   end,
 
   message = function(self, v)
@@ -90,11 +80,10 @@ local Car_attribute_setters = {
 
 function Car:new()
   local priv = {
-      forward = false,
-      backward = false,
-      left = false,
-      right = false,
-      handbreak = false,
+      steering = 0.0,
+      acceleration = 0.0,
+      brake = 0.0,
+      nitro = 0.0,
       message = ""
   } -- private attributes in instance
   local self = make_proxy(Car, priv, nil, Car_attribute_setters, true)
@@ -103,6 +92,7 @@ end
 
 function module.verify()
     captured_control = _G.control
+    assert(captured_control ~= nil)
 end
 
 function to_car(data)
@@ -116,11 +106,10 @@ end
 
 function from_car(car)
     return json.encode({
-        forward = car.forward,
-        backward = car.backward,
-        left = car.left,
-        right = car.right,
-        handbreak = car.handbreak,
+        steering = car.steering,
+        acceleration = car.acceleration,
+        brake = car.brake,
+        nitro = car.nitro,
         message = car.message
     })
 end

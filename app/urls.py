@@ -2,7 +2,11 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.leaderboard, name="app_leaderboard"),
+    url(r'^$', views.index, name="app_index"),
+
+    url(r"^leaderboard/(?:(?P<track_id>\d+)/)?$", views.leaderboard, name="app_leaderboard"),
+
+    url(r"^inheritance/(?:(?P<track_id>\d+)/)?$", views.inheritance, name="app_inheritance"),
 
     url(r"^scripts/(?P<script_id>\d+)/view/$", views.scripts_view, name="app_scripts_view"),
 

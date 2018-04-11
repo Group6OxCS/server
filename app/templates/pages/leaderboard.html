@@ -1,11 +1,59 @@
 {% extends "base.html" %}
 
+{% load getattribute %}
+
+{% block extra_js %}
+    <script>
+      $(document).ready(function() {
+        $("table")
+          .tablesorter({widthFixed: true, widgets: ['zebra'], sortList: [[2, 0]]})
+          .tablesorterPager({container: $("#pager"), positionFixed: false, size: 25});
+      });
+    </script>
+{% endblock %}
+
 {% block main %}
-  <ul>
-    {% for leader in leaders %}
-      <li>
-        {{ leader.scores.time }} &ndash; <a href="{% url 'app_scripts_view' leader.script.id %}">{{ leader.script.name }}</a> &ndash; {{ leader.track.name }}
-      </li>
+  <h1>Leaderboard</h1>
+  <div class="tracks">
+    {% for a_track in tracks %}
+      <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_leaderboard' a_track.id %}">{{ a_track.name }}</a>
     {% endfor %}
-  </ul>
+  </div>
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Language</th>
+        {% for title in score_titles %}
+          <th>{{ title }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for script, score in leaders %}
+        <tr>
+          <td><a href="{% url 'app_scripts_view' script.id %}">{{ script.name }}</a></td>
+          <td>{{ script.language.name }}</td>
+          {% for attr in score_attrs %}
+            <td>{{ score.scores|getattribute:attr }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div id="pager" class="tablesorterPager">
+    <form>
+      <i class="fa fa-fast-backward first"/></i>
+      <i class="fa fa-step-backward prev"/></i>
+      <input type="text" class="pagedisplay"/>
+      <i class="fa fa-step-forward next"/></i>
+      <i class="fa fa-fast-forward last"/></i>
+      <select class="pagesize">
+        <option value="10">10</option>
+        <option selected="selected" value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </form>
+  </div>
 {% endblock %}
