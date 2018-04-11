@@ -26,13 +26,15 @@ Navigate to `localhost:8000`.
 Using the External Database
 ---------------------------
 
+Note: The external database is _very_ slow, so it is preferable to use the local one.
+
 Run the server using:
 
 ```bash
 EXT_DB="<key>" ./manage.py runserver
 ```
 
-where `<key>` is a password you must request from @matsjoyce. **Do not share to key or commit it to any repo!**
+where `<key>` is a password you must request from @matsjoyce. **_Do not share the key or commit it to any repo!_**
 
 Modifying data
 --------------

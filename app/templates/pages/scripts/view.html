@@ -23,9 +23,6 @@
     <a href="{% url 'app_scripts_run_existing' script.id %}" class="btn btn-primary">Run</a>
     <a href="{% url 'app_scripts_fork' script.id %}" class="btn btn-primary">Fork</a>
   </div>
-  <h3>Code</h3>
-  <pre><code class="{{ script.language.highlightjs_code }}">{{ script.code }}</code></pre>
-
   <h3>Scores</h3>
   <table class="tablesorter">
     <thead>
@@ -47,4 +44,7 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <h3>Code</h3>
+  <pre><code class="{{ script.language.highlightjs_code }}">{{ script.code }}</code></pre>
 {% endblock %}

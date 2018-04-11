@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, Http404
 from django.db import transaction
 import json
 from . import models
@@ -18,8 +18,8 @@ def leaderboard(request, *, track_id=None):
         track = models.Track.objects.all()[0]
     else:
         track = get_object_or_404(models.Track, id=track_id)
-    scripts = models.Script.objects.all()
-    scores = {x.script.id: x for x in models.Score.objects.filter(track=track)}
+    scripts = models.Script.objects.all().prefetch_related("language")
+    scores = {x.script_id: x for x in models.Score.objects.filter(track=track)}
     objs = [(s, scores.get(s.id)) for s in scripts]
 
     return render(request, "pages/leaderboard.html", {
@@ -36,8 +36,8 @@ def inheritance(request, *, track_id=None):
         track = models.Track.objects.all()[0]
     else:
         track = get_object_or_404(models.Track, id=track_id)
-    scripts = models.Script.objects.all()
-    scores = {x.script.id: x for x in models.Score.objects.filter(track=track)}
+    scripts = models.Script.objects.all().prefetch_related("parent")
+    scores = {x.script_id: x for x in models.Score.objects.filter(track=track)}
     objs = [(s, scores.get(s.id)) for s in scripts]
 
     return render(request, "pages/inheritance.html", {
@@ -68,7 +68,8 @@ def scripts_new(request, *, parent_id=None):
     name = ""
     code = ""
     parent = None
-    language = models.Language.objects.first()
+    languages = list(models.Language.objects.all())
+    language = languages[0]
 
     # Already editing, extract data from POST
     if request.method == "POST":
@@ -93,7 +94,7 @@ def scripts_new(request, *, parent_id=None):
             "code": code,
             "parent": parent,
             "language": language,
-            "languages": models.Language.objects.all()
+            "languages": languages
         })
 
 

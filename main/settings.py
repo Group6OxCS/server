@@ -72,6 +72,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
+#LOGGING = {
+    #'version': 1,
+    #'filters': {
+        #'require_debug_true': {
+            #'()': 'django.utils.log.RequireDebugTrue',
+        #}
+    #},
+    #'handlers': {
+        #'console': {
+            #'level': 'DEBUG',
+            #'filters': ['require_debug_true'],
+            #'class': 'logging.StreamHandler',
+        #}
+    #},
+    #'loggers': {
+        #'django.db.backends': {
+            #'level': 'DEBUG',
+            #'handlers': ['console'],
+        #}
+    #}
+#}
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -84,6 +105,9 @@ if os.environ.get("EXT_DB"):
             'NAME': 'g6csox',
             'USER': 'g6csox',
             'PASSWORD': os.environ["EXT_DB"],
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
         }
     }
 else:
