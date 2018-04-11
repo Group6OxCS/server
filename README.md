@@ -23,6 +23,17 @@ To run the server:
 
 Navigate to `localhost:8000`.
 
+Using the External Database
+---------------------------
+
+Run the server using:
+
+```bash
+EXT_DB="<key>" ./manage.py runserver
+```
+
+where `<key>` is a password you must request from @matsjoyce. **Do not share to key or commit it to any repo!**
+
 Modifying data
 --------------
 
