@@ -63,8 +63,15 @@
         var options = {
           layout: {
             hierarchical: {
+              direction: "UD",
               sortMethod: "directed"
             }
+          },
+          interaction: {
+            dragNodes: false
+          },
+          physics: {
+            enabled: false
           },
           edges: {
             smooth: true,

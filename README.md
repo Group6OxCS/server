@@ -15,6 +15,8 @@ Execute in a terminal:
 ./manage.py migrate
 ```
 
+You will then need the game compiled in WebGL mode. Either do this, saving as `nodev` and copying the `Build` directory into the `game` folder, or request a zipped build on slack and unpacking in in the `game` folder.
+
 Optional: If you want some starter data, get a dump from @matsjoyce and then do:
 
 ```bash

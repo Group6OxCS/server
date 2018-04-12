@@ -48,6 +48,8 @@ end
 local module = {}
 local captured_control = nil
 
+module.NO_DETECTION = 10000
+
 local Car = {}
 Car.__index = Car
 
@@ -90,6 +92,24 @@ function Car:new()
   return self
 end
 
+function Car:obstacle_detection(start_angle, end_angle, cap)
+    print(start_angle)
+    print(end_angle)
+    if end_angle < start_angle then
+        start_angle, end_angle = end_angle, start_angle
+    end
+    local detection = module.NO_DETECTION
+    for bearing, distance in pairs(self.obstacle_detection_rays) do
+        if start_angle <= bearing and bearing <= end_angle then
+            detection = math.min(detection, distance)
+        end
+    end
+    if cap and detection > cap then
+        return module.NO_DETECTION
+    end
+    return detection
+end
+
 function module.verify()
     captured_control = _G.control
     assert(captured_control ~= nil)
@@ -99,7 +119,14 @@ function to_car(data)
     local car = Car:new()
     local dp = json.decode(data)
     for k, v in pairs(dp) do
-        car[k] = v
+        if k == "obstacle_detection_rays" then
+            car.obstacle_detection_rays = {}
+            for i, odr in ipairs(v) do
+                car.obstacle_detection_rays[odr.bearing] = odr.distance
+            end
+        else
+            car[k] = v
+        end
     end
     return car
 end
