@@ -30,7 +30,7 @@ class Language(models.Model):
 class Script(models.Model):
     name = models.CharField(unique=True, max_length=30)
     parent = models.ForeignKey("self", null=True, default=None, blank=True, on_delete=models.SET_NULL)
-    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE)
     code = models.TextField()
 
     def __repr__ (self):

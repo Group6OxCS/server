@@ -5,8 +5,8 @@ import json
 from . import models
 
 
-SCORES_ATTRS = ["time", "fuel_used", "top_speed"]
-SCORES_TITLES = ["Time (s)", "Fuel Used", "Top Speed (m/s)"]
+SCORES_ATTRS = ["time", "fuel_used", "top_speed", "average_speed"]
+SCORES_TITLES = ["Time (s)", "Fuel Used", "Top Speed (m/s)", "Average Speed (m/s)"]
 
 
 def index(request):
@@ -47,6 +47,36 @@ def inheritance(request, *, track_id=None):
             "score_attrs": SCORES_ATTRS,
             "score_titles": SCORES_TITLES
         })
+
+
+def play(request):
+    return render(request, "pages/play.html", {})
+
+
+def play_submit(request):
+    if (request.method != "POST"
+        or not request.POST.get("scores")):
+        return HttpResponseBadRequest()
+
+    human_script, save = models.Script.objects.get_or_create(name="Humans")
+    if save:
+        human_script.save()
+
+    scores = request.POST["scores"]
+
+    try:
+        scores = json.loads(scores)
+        track = get_object_or_404(models.Track, level=scores["track"])
+    except Exception:
+        return HttpResponseBadRequest()
+
+    with transaction.atomic():
+        # Replace score for this track
+        models.Score.objects.filter(script=human_script, track=track).delete()
+        score = models.Score(script=human_script, track=track, scores=scores)
+        score.save()
+
+    return redirect("app_index")
 
 
 def scripts_view(request, *, script_id):
@@ -150,7 +180,8 @@ def scripts_submit(request, *, script_id=None):
         if (not request.POST.get("name")
             or not request.POST.get("code")
             or "parent" not in request.POST
-            or not request.POST.get("language")):
+            or not request.POST.get("language")
+            or request.POST.get("name") == "Humans"):
                 return HttpResponseBadRequest()
 
         name = request.POST["name"]

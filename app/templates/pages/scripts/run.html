@@ -60,9 +60,7 @@
       window.unityBridge = {
         query_env: function (data) {
           var dataobj = JSON.parse(data);
-          console.log("QE", dataobj);
           return JSON.stringify({
-            track: 1
           });
         },
         new_data: function (data, callback) {

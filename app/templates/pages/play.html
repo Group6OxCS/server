@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block extra_js %}
+    <script src="{% static "Build/UnityLoader.js" %}"></script>
+    <script src="{% static "runtimes/utils.js" %}"></script>
+    <script>
+      var gameInstance, finished = false;
+
+      function errored(err) {
+        console.log(err);
+        $(".loading-progress").hide();
+        $(".game-error-text").text(err);
+        $(".game-error").show();
+      }
+
+      function unityProgress(gameInstance, progress) {
+        if (progress == 1) {
+          $(".loading-progress").hide();
+        }
+        else {
+          $(".lp-bar-inner").width(progress * 100 + "%");
+        }
+      }
+
+      function loadUnity() {
+        $(".lp-text").text("Loading Unity...");
+        unityProgress(0);
+        gameInstance = UnityLoader.instantiate("gameContainer",
+                                               "{% static "Build/nodev.json" %}",
+                                               {onProgress: unityProgress});
+      }
+
+      window.unityBridge = {
+        query_env: function (data) {
+          var dataobj = JSON.parse(data);
+          return JSON.stringify({
+            human_override: true
+          });
+        },
+        new_data: function (data, callback) {
+        },
+        end_level: function (data) {
+          finished = true;
+          $("#hiddenscores").val(data);
+          $(".hidden-elems").show();
+        }
+      };
+
+      $('document').ready(function() {
+        loadUnity();
+      });
+    </script>
+{% endblock %}
+
+{% block main %}
+  <div class="alert alert-info">
+    <h3 style="margin-top: 0">Controls</h3>
+    <ul>
+      <li>
+        <b>Steering:</b> Left: <code>A</code>, <code>left arrow</code> Right: <code>D</code>, <code>right arrow</code>
+      </li>
+      <li>
+        <b>Throttle:</b> Forward: <code>W</code>, <code>up arrow</code>, <code>left shift</code>, <code>E</code> Backward: <code>S</code>, <code>down arrow</code>, <code>F</code>
+      </li>
+      <li>
+        <b>Handbrake:</b> <code>X</code>, <code>spacebar</code>
+      </li>
+      <li>
+        <b>Nitro:</b> <code>C</code>
+      </li>
+  </div>
+  <div class="game-container">
+    <div id="gameContainer"></div>
+    <div class="loading-progress">
+      <div class="lp-text">Zzzzz...</div>
+      <div class="lp-bar"><div class="lp-bar-inner"></div></div>
+    </div>
+    <div class="game-error" style="display: none">
+      <div class="game-error-text">Unknown error has occurred</div>
+    </div>
+  </div>
+  <form id="hiddenform" method="post">
+    {% csrf_token %}
+    <textarea name="scores" id="hiddenscores" style="display:none"></textarea>
+      <div class="hidden-elems" style="display:none">
+        <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_play_submit' %}" />
+      </div>
+  </form>
+{% endblock %}
