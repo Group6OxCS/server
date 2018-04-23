@@ -112,7 +112,7 @@ end
 
 function module.verify()
     captured_control = _G.control
-    assert(captured_control ~= nil)
+    assert(captured_control ~= nil, "Could not find control function")
 end
 
 function to_car(data)

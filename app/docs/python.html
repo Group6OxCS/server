@@ -1,11 +1,25 @@
 <h4>Basic Structure</h4>
-<pre><code>import math
+<pre><code>import api
 
-def main(car):
+def control(car):
     # Your code</code></pre>
-<h4>API reference</h4>
-<code>car.left</code>: Go left<br />
-<code>car.right</code>: Go right<br />
-<code>car.up</code>: Fly<br />
-<h4>Handy Constructions</h4>
-Get angle to waypoint: <code>math.degrees(math.atan2(*car.waypoint[::-1]))</code>
+
+<h4>Controls</h4>
+<div class="code-item"><code>car.steering: float</code>: Steering direction. -1 for left, 1 for right</div>
+<div class="code-item"><code>car.acceleration: float</code>: Acceleration. 1 for full forward, -1 for full reverse</div>
+<div class="code-item"><code>car.brake: float</code>: Break. 1 for full braking, 0 for no braking</div>
+<div class="code-item"><code>car.nitro: float</code>: Nitro boost. 1 for full boost, 0 for no boost</div>
+<div class="code-item"><code>car.message: str</code>: Debugging message, displayed at top</div>
+
+<h4>Sensors</h4>
+<div class="code-item"><code>car.speed: float</code>: Current car speed</div>
+<div class="code-item"><code>car.obstacle_detection(start, end[, cap]): float</code>: Distance to nearest obstacle between the angles of <code>start</code> and <code>end</code>. <code>cap</code> can be used to reduce the detection range. Returns <code>api.NO_DETECTION</code> if no obstacles are near enough.</div>
+<div class="code-item"><code>car.obstacle_detection_rays: dict[float, float]</code>: Dictionary of angle to distance to nearest obstacle at that angle</div>
+<div class="code-item"><code>car.waypoint_distance: number</code>: Distance to next waypoint</div>
+<div class="code-item"><code>car.waypoint_bearing: number</code>: Bearing to next waypoint</div>
+<div class="code-item"><code>car.future_waypoint_distance: number</code>: Distance to waypoint after the current one</div>
+<div class="code-item"><code>car.future_waypoint_bearing: number</code>: Bearing to waypoint after the current one</div>
+
+<h4>Notes</h4>
+<code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output. Using <code>car.message</code> may be better.<br />
+This uses <a href="https://brython.info/">Brython</a> which is a close implementation of Python 3.5. There are, however, some irregularities so if your code fails try simplifying the syntax.

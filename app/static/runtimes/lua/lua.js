@@ -36,7 +36,6 @@ var callbacks = {
         fengari.lua.lua_getglobal(luaState, fengari.to_luastring("require"));
         fengari.lua.lua_pushstring(luaState, fengari.to_luastring("api"));
         if (fengari.lua.lua_pcall(luaState, 1, 1, 0) != 0) {
-            console.log("AGH")
             postMessage({type: "ready", err: "Lua error while loading api: " + fengari.to_jsstring(fengari.lua.lua_tostring(luaState, -1))});
             return fengari.lua.lua_remove(luaState, -1);
         }
