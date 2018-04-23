@@ -61,6 +61,17 @@ class Car:
         self._message = float(value)
         return value
 
+    def obstacle_detection(self, start_angle, end_angle, cap=NO_DETECTION):
+        if end_angle < start_angle:
+            start_angle, end_angle = end_angle, start_angle
+        detection = NO_DETECTION
+        for bearing, distance in self.obstacle_detection_rays.items():
+            if start_angle <= bearing and bearing <= end_angle:
+                detection = min(detection, distance)
+        if detection > cap:
+            return NO_DETECTION
+        return detection
+
     def serialize(self):
         return json.dumps({
             "steering": self.steering,
