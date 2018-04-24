@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load getattribute %}
+{% load getattribute app %}
 
 {% block extra_js %}
     <script>
@@ -43,7 +43,7 @@
         <tr>
           <td>{{ track.name }}</td>
           {% for attr in score_attrs %}
-            <td>{{ score.scores|getattribute:attr }}</td>
+            <td>{{ score.scores|getattribute:attr|round2dp }}</td>
           {% endfor %}
         </tr>
       {% endfor %}

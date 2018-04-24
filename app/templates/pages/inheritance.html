@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load staticfiles getattribute %}
+{% load staticfiles getattribute app %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static "css/vis.min.css" %}" type="text/css">
@@ -139,7 +139,7 @@
           url: "{% url 'app_scripts_view' script.id %}",
           scores:
             {% if score.scores %}
-              {{score.scores|safe}}
+              {{score.scores|mapround|safe}}
             {% else %}
               {}
             {% endif %}

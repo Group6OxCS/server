@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load getattribute %}
+{% load getattribute app %}
 
 {% block extra_js %}
     <script>
@@ -35,7 +35,7 @@
           <td><a href="{% url 'app_scripts_view' script.id %}">{{ script.name }}</a></td>
           <td>{{ script.language.name }}</td>
           {% for attr in score_attrs %}
-            <td>{{ score.scores|getattribute:attr }}</td>
+            <td>{{ score.scores|getattribute:attr|round2dp }}</td>
           {% endfor %}
         </tr>
       {% endfor %}
