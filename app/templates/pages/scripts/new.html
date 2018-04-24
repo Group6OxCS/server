@@ -12,7 +12,7 @@
       editor.session.setMode("{{ language.ace_code }}");
       editor.setAutoScrollEditorIntoView(true);
       editor.setOptions({
-        minLines: 15,
+        minLines: 25,
         maxLines: 50
       });
 
@@ -58,7 +58,6 @@
       <input type="submit" value="Run" class="btn btn-primary pull-right" />
     </div>
     <div class="col-xs-4">
-      <h3>Useful info and stuff:</h3>
       <div id="language-info">{{ language.help_text_file|load_docs|safe }}</div>
     </div>
   </form>

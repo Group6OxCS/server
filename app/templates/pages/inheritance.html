@@ -168,7 +168,7 @@
       <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
     {% endfor %}
   </div>
-  <label for="pickattr">Color by (darker means higher value):</label>
+  <label for="pickattr">Color by (darker means higher value, grey means no score submitted):</label>
   <select id="pickattr" name="pickattr">
     {% for attr in score_attrs %}
       <option value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</option>
