@@ -1,5 +1,4 @@
 import json
-import browser
 
 NO_DETECTION = 10000
 
@@ -58,7 +57,7 @@ class Car:
 
     @message.setter
     def message(self, value):
-        self._message = float(value)
+        self._message = str(value)
         return value
 
     def obstacle_detection(self, start_angle, end_angle, cap=NO_DETECTION):
@@ -93,7 +92,3 @@ def call_control(data):
     car = Car(data)
     captured_control(car)
     return car.serialize()
-
-
-browser.window.verify = verify
-browser.window.call_control = call_control

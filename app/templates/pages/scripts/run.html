@@ -61,6 +61,7 @@
         query_env: function (data) {
           var dataobj = JSON.parse(data);
           return JSON.stringify({
+            script_name: scriptname
           });
         },
         new_data: function (data, callback) {
@@ -93,7 +94,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");</script>
+  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");scriptname="{{ script.name }}"</script>
 {% endblock %}
 
 {% block main %}
