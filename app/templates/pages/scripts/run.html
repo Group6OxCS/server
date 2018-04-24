@@ -97,6 +97,28 @@
 {% endblock %}
 
 {% block main %}
+  <form id="hiddenform" method="post">
+    {% csrf_token %}
+    <textarea name="scores" id="hiddenscores" style="display:none"></textarea>
+    {% if script %}
+      <a class="btn btn-primary" href="{% url 'app_scripts_view' script.id %}">Back to Script</a>
+      <div class="hidden-elems" style="display:none">
+        <input type="submit" value="Submit New Score" class="btn btn-success" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
+      </div>
+      <textarea name="code" id="hiddencode" style="display:none">{{ script.code }}</textarea>
+    {% else %}
+      <input type="hidden" name="name" value="{{ name }}" />
+      <textarea name="code" id="hiddencode" style="display:none">{{ code }}</textarea>
+      <input type="hidden" name="parent" value="{{ parent.id }}" />
+      <input type="hidden" name="language" value="{{ language.id }}" />
+
+      <input type="submit" value="Back to Editing" class="btn btn-primary" formaction="{% url 'app_scripts_new' %}" />
+      <div class="hidden-elems" style="display:none">
+        <input type="submit" value="Submit Your Script!" class="btn btn-success" formaction="{% url 'app_scripts_submit' %}" />
+      </div>
+    {% endif %}
+  </form>
+
   <div class="game-container">
     <div id="gameContainer"></div>
     <div class="loading-progress">
@@ -107,25 +129,4 @@
       <pre class="game-error-text">Unknown error has occurred</div>
     </div>
   </div>
-
-  <form id="hiddenform" method="post">
-    {% csrf_token %}
-    <textarea name="scores" id="hiddenscores" style="display:none"></textarea>
-    {% if script %}
-      <div class="hidden-elems" style="display:none">
-        <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
-      </div>
-      <textarea name="code" id="hiddencode" style="display:none">{{ script.code }}</textarea>
-    {% else %}
-      <input type="hidden" name="name" value="{{ name }}" />
-      <textarea name="code" id="hiddencode" style="display:none">{{ code }}</textarea>
-      <input type="hidden" name="parent" value="{{ parent.id }}" />
-      <input type="hidden" name="language" value="{{ language.id }}" />
-
-      <input type="submit" value="Edit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_new' %}" />
-      <div class="hidden-elems" style="display:none">
-        <input type="submit" value="Submit" class="btn btn-primary pull-right" formaction="{% url 'app_scripts_submit' %}" />
-      </div>
-    {% endif %}
-  </form>
 {% endblock %}
