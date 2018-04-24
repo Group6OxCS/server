@@ -20,7 +20,7 @@ You will then need the game compiled in WebGL mode. Either compile it, saving as
 Optional: If you want some starter data, get a dump from @matsjoyce and then do:
 
 ```bash
-cat dump.sql | sqlite3 db.sqlite
+cat dump.sql | sqlite3 db.sqlite3
 ```
 
 To run the server:
