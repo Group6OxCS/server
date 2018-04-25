@@ -127,31 +127,6 @@
         update(root);
       })
 
-      function HSVtoRGB(h, s, v) {
-        var r, g, b, i, f, p, q, t;
-        if (arguments.length === 1) {
-            s = h.s, v = h.v, h = h.h;
-        }
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-          case 0: r = v, g = t, b = p; break;
-          case 1: r = q, g = v, b = p; break;
-          case 2: r = p, g = v, b = t; break;
-          case 3: r = p, g = q, b = v; break;
-          case 4: r = t, g = p, b = v; break;
-          case 5: r = v, g = p, b = q; break;
-        }
-        return {
-          r: Math.round(r * 255),
-          g: Math.round(g * 255),
-          b: Math.round(b * 255)
-        };
-      }
-
       function setGMode(mode) {
         gmode = mode;
 
@@ -197,26 +172,28 @@
             min = score;
           }
         });
+        var start_color = [0xe3, 0x4a, 0x33];
+        var end_color = [0xff, 0xf7, 0xbc];
         Object.keys(nodes).forEach(function (k) {
           if (k == "fake") return;
           var v = nodes[k];
           var score = v.scores[ymode];
           v.value = score;
           if (score === undefined) {
-            v.color = "gray";
+            v.color = "#ccc";
             v.label = v.name;
           }
           else {
             var n = max == min ? 1 : (score - min) / (max - min);
-            var color = HSVtoRGB(0.1, 0.2 + (n * 0.8), 1);
-            v.color = "rgb(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ")";
+            v.color = "rgb(" + Math.floor(start_color[0] * n + end_color[0] * (1 - n))
+                      + ", " + Math.floor(start_color[1] * n + end_color[1] * (1 - n))
+                      + ", " + Math.floor(start_color[2] * n + end_color[2] * (1 - n)) + ")";
             v.label = v.name + "\n" + score;
           }
         })
       }
 
       function update(source) {
-        console.log(selection);
         // Compute the new tree layout.
         var tree_data = treemap(root);
         var nodes = tree_data.descendants(),
@@ -238,7 +215,7 @@
             .transition()
             .duration(duration)
             .attr("opacity", 1)
-            .call(xaxis)
+            .call(xaxis);
 
         if (gmode == "genline") {
           var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
@@ -267,23 +244,24 @@
               .transition()
               .duration(duration)
               .attr("opacity", 1)
-              .call(yaxis)
+              .call(yaxis);
           ylabel
               .transition()
               .duration(duration)
               .text(ytext)
-              .attr("opacity", 1)
+              .attr("opacity", 1);
         }
         else {
           svg.selectAll("g.y.axis")
               .transition()
               .duration(duration)
-              .attr("opacity", 0)
+              .attr("opacity", 0);
           ylabel
               .transition()
               .duration(duration)
-              .attr("opacity", 0)
+              .attr("opacity", 0);
         }
+        svg.selectAll("g.axis").lower();
 
         // Update the nodes...
         var node = svg.selectAll('g.node')
