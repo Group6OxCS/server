@@ -7,6 +7,8 @@ Instructions for running
 Requirements:
 
  - Python 3.6+ (tested using Python 3.6.4)
+ - MySQL libraries (optional, remove first line of `requirements.txt` if you do not have this)
+ - http://lesscss.org/
 
 Execute in a terminal:
 
@@ -15,7 +17,7 @@ Execute in a terminal:
 ./manage.py migrate
 ```
 
-You will then need the game compiled in WebGL mode. Either compile it, saving as `nodev` and copying the `Build` directory into the `game` folder, or request a zipped build on slack and unpack it in the `game` folder.
+You will then need the game compiled in WebGL mode. Either compile it, saving as `nodev` and copying the `Build` directory into the `game` folder, or request a zipped build on slack from @matsjoyce and unpack it in the `game` folder.
 
 Optional: If you want some starter data, get a dump from @matsjoyce and then do:
 
