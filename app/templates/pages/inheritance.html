@@ -50,7 +50,7 @@
 {% block extra_js %}
     <script src="{% static 'js/d3.v5.js' %}"></script>
     <script>
-      var margin = {top: 20, right: 120, bottom: 40, left: 120},
+      var margin = {top: 20, right: 150, bottom: 40, left: 60},
           width = 960 - margin.right - margin.left,
           height = 500 - margin.top - margin.bottom;
 
@@ -224,11 +224,14 @@
 
         // Normalize for fixed-depth.
         var max_depth = 0;
-        nodes.forEach(function(d) { d.y = d.depth * 180 - 180; max_depth = Math.max(max_depth, d.depth); });
+        nodes.forEach(function(d) { max_depth = Math.max(max_depth, d.depth); });
 
         xscale = d3.scaleLinear()
               .domain([1, max_depth])
-              .range([0, (max_depth - 1) * 180]);
+              .range([0, Math.max(width, 150 * (max_depth - 1))]);
+
+        nodes.forEach(function(d) { d.y = xscale(d.depth); });
+
         xaxis.scale(xscale)
             .ticks(max_depth);
         svg.selectAll("g.x.axis")
@@ -510,6 +513,6 @@
       </div>
     </div>
   </div>
-  <div id="graph" style="width: 800px; height: 500px; border: 1px solid lightgray; overflow: hidden"></div>
+  <div id="graph" style="width: 960px; height: 500px; border: 1px solid lightgray; overflow: hidden"></div>
 {% endblock %}
 
