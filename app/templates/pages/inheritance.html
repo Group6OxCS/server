@@ -3,15 +3,129 @@
 {% load staticfiles getattribute app %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static "css/vis.min.css" %}" type="text/css">
+    <style>
+      .node {
+        cursor: pointer;
+      }
+
+      .node circle {
+        fill: #fff;
+        stroke: black;
+        stroke-width: 1px;
+      }
+
+      .node .txt span {
+        font: 12px sans-serif;
+        border-radius: 4px;
+        background: white;
+        display: inline-block;
+        padding: 4px;
+        border: 1px solid #ccc;
+      }
+
+      .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+      }
+
+      .link.hovering {
+        stroke: #000;
+      }
+
+      .arrow-head {
+        fill: #ccc;
+      }
+
+      .arrow-head.hovering {
+        fill: #000;
+      }
+
+      .fake {
+        display: none;
+      }
+    </style>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/vis.min.js' %}"></script>
+    <script src="{% static 'js/d3.v5.js' %}"></script>
     <script>
-      var network = null;
-      var nodes;
-      var edges;
+      var margin = {top: 20, right: 120, bottom: 40, left: 120},
+          width = 960 - margin.right - margin.left,
+          height = 500 - margin.top - margin.bottom;
+
+      var treemap = d3.tree()
+          .size([height, width]);
+
+      // Creates a curved (diagonal) path from parent to the child nodes
+      function diagonal(s, d) {
+        path = "M " + s.y + " " + s.x + "C " + (s.y + d.y) / 2 + " " + s.x + ", " + (s.y + d.y) / 2 + " " + d.x + ", " + d.y + " " + d.x;
+        return path;
+      }
+
+      var svg, options, root, defs, duration = 750, selection = [];
+      var xscale = d3.scaleLinear(), yscale = d3.scaleLinear();
+      var xaxis, yaxis, xlabel, ylabel;
+      var ymode, gmode, ytext;
+
+      $(document).ready(function () {
+        yaxis = d3.axisLeft();
+        xaxis = d3.axisBottom();
+
+        svg = d3.select("#graph").append("svg")
+            .call(d3.zoom()
+                      .scaleExtent([0.5, 5])
+                      .on("zoom", zoomed))
+            .attr("width", width + margin.right + margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + 0 + ",0)");
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")");
+
+        defs = svg.append("svg:defs");
+
+        // text label for the x axis
+        xlabel = svg.append("text")
+            .attr("transform",
+                  "translate(" + (0) + " ," +
+                                (height + 30) + ")")
+            .style("text-anchor", "left")
+            .text("Generation");
+
+        // text label for the y axis
+        ylabel = svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - 50)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Value");
+
+        root = d3.hierarchy(nodes["fake"], function(d) { return d.children; });
+        root.y0 = 0;
+        root.x0 = height / 2;
+
+        $("#ymode button").on("click", function () {
+          setYMode($(this).attr("value"));
+          update(root);
+        })
+
+        $("#gmode button").on("click", function () {
+          setGMode($(this).attr("value"));
+          update(root);
+        })
+
+        setYMode(ymode);
+        setGMode("tree");
+        update(root);
+      })
 
       function HSVtoRGB(h, s, v) {
         var r, g, b, i, f, p, q, t;
@@ -36,62 +150,43 @@
           g: Math.round(g * 255),
           b: Math.round(b * 255)
         };
-    }
-
-      function destroy() {
-        if (network !== null) {
-          network.destroy();
-          network = null;
-        }
       }
 
-      function draw() {
-        destroy();
+      function setGMode(mode) {
+        gmode = mode;
 
-        nodes = new vis.DataSet([]);
-        edges = new vis.DataSet([]);
-
-        add_data(nodes, edges);
-
-        // create a network
-        var container = document.getElementById('graph');
-        var data = {
-          nodes: nodes,
-          edges: edges
-        };
-
-        var options = {
-          layout: {
-            hierarchical: {
-              direction: "UD",
-              sortMethod: "directed"
-            }
-          },
-          interaction: {
-            dragNodes: false
-          },
-          physics: {
-            enabled: false
-          },
-          edges: {
-            smooth: true,
-            arrows: {to : true }
+        $("#gmode button").each(function () {
+          if ($(this).attr("value") == gmode) {
+            $(this).addClass("btn-primary");
+            $(this).removeClass("btn-default");
           }
-        };
-        network = new vis.Network(container, data, options);
-
-        network.on("click", function (params) {
-          if (params.nodes.length === 1) {
-            var node = nodes.get(params.nodes[0]);
-            window.open(node.url);
+          else {
+            $(this).addClass("btn-default");
+            $(this).removeClass("btn-primary");
           }
-        });
+        })
       }
 
-      function set_colors(attr) {
+      function setYMode(mode) {
+        ymode = mode;
+
+        $("#ymode button").each(function () {
+          if ($(this).attr("value") == ymode) {
+            ytext = $(this).text();
+            $(this).addClass("btn-primary");
+            $(this).removeClass("btn-default");
+          }
+          else {
+            $(this).addClass("btn-default");
+            $(this).removeClass("btn-primary");
+          }
+        })
+
         var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
-        nodes.forEach(function (v) {
-          var score = v.scores[attr];
+        Object.keys(nodes).forEach(function (k) {
+          if (k == "fake") return;
+          var v = nodes[k];
+          var score = v.scores[ymode];
           if (score === undefined) {
             return;
           }
@@ -102,8 +197,11 @@
             min = score;
           }
         });
-        nodes.forEach(function (v) {
-          var score = v.scores[attr];
+        Object.keys(nodes).forEach(function (k) {
+          if (k == "fake") return;
+          var v = nodes[k];
+          var score = v.scores[ymode];
+          v.value = score;
           if (score === undefined) {
             v.color = "gray";
             v.label = v.name;
@@ -114,50 +212,263 @@
             v.color = "rgb(" + Math.floor(color.r) + ", " + Math.floor(color.g) + ", " + Math.floor(color.b) + ")";
             v.label = v.name + "\n" + score;
           }
-          nodes.update(v);
         })
       }
 
-      $(document).ready(function () {
-        draw();
+      function update(source) {
+        console.log(selection);
+        // Compute the new tree layout.
+        var tree_data = treemap(root);
+        var nodes = tree_data.descendants(),
+            links = tree_data.descendants().slice(1);
 
-        $("#pickattr").change(function (e) {
-          set_colors(e.target.value);
-        })
-      });
+        // Normalize for fixed-depth.
+        var max_depth = 0;
+        nodes.forEach(function(d) { d.y = d.depth * 180 - 180; max_depth = Math.max(max_depth, d.depth); });
+
+        xscale = d3.scaleLinear()
+              .domain([1, max_depth])
+              .range([0, (max_depth - 1) * 180]);
+        xaxis.scale(xscale)
+            .ticks(max_depth);
+        svg.selectAll("g.x.axis")
+            .transition()
+            .duration(duration)
+            .attr("opacity", 1)
+            .call(xaxis)
+
+        if (gmode == "genline") {
+          var max = Number.NEGATIVE_INFINITY;
+          nodes.forEach(function(d) { max = Math.max(max, d.data.value || 0); });
+          yscale = d3.scaleLinear()
+              .domain([0, max])
+              .range([height, 0]);
+          nodes.forEach(function(d) { d.x = yscale(d.data.value || 0); });
+          yaxis.scale(yscale);
+
+          svg.selectAll("g.y.axis")
+              .transition()
+              .duration(duration)
+              .attr("opacity", 1)
+              .call(yaxis)
+          ylabel
+              .transition()
+              .duration(duration)
+              .text(ytext)
+              .attr("opacity", 1)
+        }
+        else {
+          svg.selectAll("g.y.axis")
+              .transition()
+              .duration(duration)
+              .attr("opacity", 0)
+          ylabel
+              .transition()
+              .duration(duration)
+              .attr("opacity", 0)
+        }
+
+        // Update the nodes...
+        var node = svg.selectAll('g.node')
+            .data(nodes, function(d) {return d.data.id; });
+
+        // Enter any new modes at the parent's previous position.
+        var nodeEnter = node.enter().append('g')
+            .attr("transform", function(d) {
+              return "translate(" + source.y0 + "," + source.x0 + ")";
+          })
+          .on('click', click);
+
+        // Add Circle for the nodes
+        nodeEnter.append('circle')
+            .attr('r', 1e-6)
+            .style("fill", function(d) { return d.data.color; })
+            .on('mouseover', function(d) {
+              selection = [];
+              while (d.data.fake == "") {
+                selection.push(d);
+                d = d.parent;
+              }
+              update(root);
+            })
+            .on('mouseout', function(d) {
+              selection = [];
+              update(root);
+            });
+
+        nodeEnter.append("g")
+            .attr("class", "txt-holder")
+            .append("foreignObject")
+            .attr("class", "txt")
+            .attr("width", 500)
+            .attr("x", 10)
+            .attr("height", 100);
+
+        function getBB(selection) {
+            selection.each(function(d){d.bbox = this.getBBox();console.log(d.bbox)})
+        }
+
+        // UPDATE
+        var nodeUpdate = nodeEnter.merge(node);
+
+        // Transition to the proper position for the node
+        nodeUpdate.transition()
+          .duration(duration)
+          .attr("class", function (d) { return "node" + d.data.fake + (selection.includes(d) ? " hovering" : ""); })
+          .attr("transform", function(d) {
+              return "translate(" + d.y + "," + d.x + ")";
+          });
+
+        // Update the node attributes and style
+        nodeUpdate.select('circle').transition()
+          .duration(duration)
+          .attr('r', gmode == "tree" ? 10 : 5)
+          .style("fill", function(d) { return d.data.color; })
+          .attr('cursor', 'pointer');
+
+        // Update the node attributes and style
+        nodeUpdate.select('.txt')
+          .attr('x', gmode == "tree" ? 10 : 5)
+          .html(function(d) {
+              return "<span>" + d.data.name + "<br />" + (d.data.value === undefined ? "No Score" : "Score: " + d.data.value) + "</span>";
+          });
+
+        nodeUpdate.select(".txt-holder").transition()
+          .duration(duration)
+          .style('opacity', function (d) { return gmode == "tree" ? 1 : (selection.includes(d) ? 1 : 0); });
+
+        // Remove any exiting nodes
+        var nodeExit = node.exit().transition()
+            .duration(duration)
+            .attr("transform", function(d) {
+                return "translate(" + source.y + "," + source.x + ")";
+            })
+            .remove();
+
+        // On exit reduce the node circles size to 0
+        nodeExit.select('circle')
+          .attr('r', 1e-6);
+
+        // On exit reduce the opacity of text labels
+        nodeExit.select('.txt')
+          .style('fill-opacity', 1e-6);
+
+        // build the arrow.
+
+        var marker = defs.selectAll("marker")
+            .data(["end", "end-hovering"]);      // Different link/path types can be defined here
+
+        var markerEnter = marker.enter().append("svg:marker")    // This section adds in the arrows
+            .attr("id", String)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", -10)
+            .attr("refY", 0)
+            .attr("markerWidth", 5)
+            .attr("markerHeight", 5)
+            .attr("orient", "auto")
+            .attr("class", function (d) { return "arrow-head" + (d == "end" ? "" : " hovering"); })
+            .append("svg:path")
+            .attr("d", "M10,-5L0,0L10,5");
+
+        markerEnter.merge(marker).transition()
+            .duration(duration)
+            .attr("refX", gmode == "tree" ? -10 : -5);
+
+        // Update the links...
+        var link = svg.selectAll('path.link')
+            .data(links, function(d) { return d.data.id; });
+
+        // Enter any new links at the parent's previous position.
+        var linkEnter = link.enter().insert('path', "g")
+            .attr('d', function(d){
+              var o = {x: source.x0, y: source.y0}
+              return diagonal(o, o)
+            })
+            .attr("marker-start", "url(#end)"); // add the arrow to the link end
+
+        // UPDATE
+        var linkUpdate = linkEnter.merge(link);
+
+        // Transition back to the parent element position
+        linkUpdate
+            .attr("marker-start", function (d) { return selection.includes(d) ? "url(#end-hovering)" : "url(#end)"; }) // add the arrow to the link end
+            .transition()
+            .duration(duration)
+            .attr("class", function (d) { return "link" + d.parent.data.fake + (selection.includes(d) ? " hovering" : ""); })
+            .attr('d', function(d){ return diagonal(d, d.parent) });
+
+        linkUpdate.filter(function(d, i){ return selection.includes(d)}).raise();
+        nodeUpdate.filter(function(d, i){ return selection.includes(d)}).raise();
+
+        // Remove any exiting links
+        var linkExit = link.exit().transition()
+            .duration(duration)
+            .attr('d', function(d) {
+              var o = {x: source.x, y: source.y}
+              return diagonal(o, o)
+            })
+            .remove();
+
+        // Stash the old positions for transition.
+        nodes.forEach(function(d) {
+          d.x0 = d.x;
+          d.y0 = d.y;
+        });
+      }
+
+      // Toggle children on click.
+      function click(d) {
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
+        }
+        update(d);
+      }
+
+      function zoomed() {
+        svg.attr("transform", d3.event.transform);
+      }
     </script>
 {% endblock %}
 
 {% block extra_head %}
   <script>
-    function add_data(nodes, edges) {
-      nodes.add([
-      {% for script, score in scripts %}
-        {
+    nodes = {
+      fake: {
+        children: [],
+        fake: " fake",
+        value: 0,
+        id: 0
+      }
+    };
+    {% for script, score in scripts %}
+      nodes[{{ script.id }}] = {
           id: {{ script.id }},
           name: '{{ script.name }}',
           url: "{% url 'app_scripts_view' script.id %}",
+          fake: "",
           scores:
             {% if score.scores %}
               {{score.scores|mapround|safe}}
             {% else %}
               {}
-            {% endif %}
-        },
-      {% endfor %}
-      ]);
-      edges.add([
-      {% for script, score in scripts %}
-        {% if script.parent %}
-          {
-            from: {{ script.parent.id }},
-            to: {{script.id}}
-          },
-        {% endif %}
-      {% endfor %}
-      ]);
-      set_colors("{{ score_attrs.0 }}");
-    }
+            {% endif %},
+          parent_id: {% if script.parent %}{{ script.parent.id }}{% else %}null{% endif %},
+          children: []
+        };
+    {% endfor %}
+    {% for script, score in scripts %}
+        nodes[{% if script.parent %}{{ script.parent.id }}{% else %}"fake"{% endif %}].children.push(nodes[{{ script.id }}]);
+    {% endfor %}
+    Object.keys(nodes).forEach(function (k) {
+      if (nodes[k].children.length == 0) {
+        nodes[k].children = null
+      }
+    })
+    ymode = "{{ score_attrs.0 }}";
   </script>
 {% endblock %}
 
@@ -168,12 +479,23 @@
       <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
     {% endfor %}
   </div>
-  <label for="pickattr">Color by (darker means higher value, grey means no score submitted):</label>
-  <select id="pickattr" name="pickattr">
-    {% for attr in score_attrs %}
-      <option value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</option>
-    {% endfor %}
-  </select>
-  <div id="graph" style="width: 800px; height: 500px; border: 1px solid lightgray;"></div>
+  <div id="options">
+    <div id="ymode">
+      Color by (darker means higher value, grey means no score submitted):
+      <div class="btn-group">
+        {% for attr in score_attrs %}
+          <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <div id="gmode">
+      Graph mode:
+      <div class="btn-group">
+        <button class="btn" value="tree">Tree</option>
+        <button class="btn" value="genline">Generational line</option>
+      </div>
+    </div>
+  </div>
+  <div id="graph" style="width: 800px; height: 500px; border: 1px solid lightgray; overflow: hidden"></div>
 {% endblock %}
 
