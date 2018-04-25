@@ -94,7 +94,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");scriptname="{{ script.name }}"</script>
+  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");scriptname="{{ name }}"</script>
 {% endblock %}
 
 {% block main %}
