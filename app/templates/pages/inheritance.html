@@ -468,7 +468,7 @@
 {% endblock %}
 
 {% block main %}
-  <h1>Inheritance</h1>
+  <h1>Graphs</h1>
   <div class="tracks">
     {% for a_track in tracks %}
       <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>

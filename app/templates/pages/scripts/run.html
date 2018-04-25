@@ -61,7 +61,9 @@
         query_env: function (data) {
           var dataobj = JSON.parse(data);
           return JSON.stringify({
-            script_name: scriptname
+            script_name: script_name,
+            history: histories[dataobj.track] || [],
+            historyFramerate: historyFramerates[dataobj.track] || 0,
           });
         },
         new_data: function (data, callback) {
@@ -94,7 +96,20 @@
 {% endblock %}
 
 {% block extra_head %}
-  <script>runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");scriptname="{{ name }}"</script>
+  <script>
+    runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");
+    script_name = "{{ name }}";
+    histories = {
+      {% for score in parent_scores %}
+        ["{{ score.track.level }}"]: {{ score.scores.history|safe }},
+      {% endfor %}
+    };
+    historyFramerates = {
+      {% for score in parent_scores %}
+        ["{{ score.track.level }}"]: {{ score.scores.historyFramerate|safe }}
+      {% endfor %}
+    };
+  </script>
 {% endblock %}
 
 {% block main %}

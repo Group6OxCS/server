@@ -162,6 +162,7 @@ def scripts_run(request, *, script_id=None):
             "name": name,
             "code": code,
             "parent": parent,
+            "parent_scores": list(models.Score.objects.filter(script=parent)),
             "language": language
         })
 
