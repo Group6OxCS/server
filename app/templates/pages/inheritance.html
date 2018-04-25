@@ -238,12 +238,26 @@
             .call(xaxis)
 
         if (gmode == "genline") {
-          var max = Number.NEGATIVE_INFINITY;
-          nodes.forEach(function(d) { max = Math.max(max, d.data.value || 0); });
+          var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
+          nodes.forEach(function (v) {
+            if (v.data.fake != "") return;
+            var score = v.data.scores[ymode];
+            if (score === undefined) {
+              return;
+            }
+            if (score > max) {
+              max = score;
+            }
+            if (score < min) {
+              min = score;
+            }
+          });
+          min *= 0.9;
+          max *= 1.1;
           yscale = d3.scaleLinear()
-              .domain([0, max])
+              .domain([min, max])
               .range([height, 0]);
-          nodes.forEach(function(d) { d.x = yscale(d.data.value || 0); });
+          nodes.forEach(function(d) { d.x = yscale(d.data.value || min); });
           yaxis.scale(yscale);
 
           svg.selectAll("g.y.axis")
