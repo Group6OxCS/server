@@ -4,6 +4,10 @@
 
 {% block extra_css %}
     <style>
+      #xmode {
+        overflow: hidden;
+      }
+
       .node {
         cursor: pointer;
       }
@@ -77,7 +81,7 @@
       var svg, options, root, defs, duration = 750, selection = [];
       var xscale = d3.scaleLinear(), yscale = d3.scaleLinear();
       var xaxis, yaxis, xlabel, ylabel, ylines;
-      var ymode, gmode, ytext;
+      var ymode, gmode, xmode, ytext, xtext;
 
       $(document).ready(function () {
         yaxis = d3.axisLeft();
@@ -132,12 +136,18 @@
           update(root);
         })
 
+        $("#xmode button").on("click", function () {
+          setXMode($(this).attr("value"));
+          update(root);
+        })
+
         $("#gmode button").on("click", function () {
           setGMode($(this).attr("value"));
           update(root);
         })
 
         setYMode(ymode);
+        setXMode(ymode);
         setGMode("genline");
         update(root);
       })
@@ -147,6 +157,22 @@
 
         $("#gmode button").each(function () {
           if ($(this).attr("value") == gmode) {
+            $(this).addClass("btn-primary");
+            $(this).removeClass("btn-default");
+          }
+          else {
+            $(this).addClass("btn-default");
+            $(this).removeClass("btn-primary");
+          }
+        })
+      }
+
+      function setXMode(mode) {
+        xmode = mode;
+
+        $("#xmode button").each(function () {
+          if ($(this).attr("value") == xmode) {
+            xtext = $(this).text();
             $(this).addClass("btn-primary");
             $(this).removeClass("btn-default");
           }
@@ -214,16 +240,51 @@
         var nodes = tree_data.descendants(),
             links = tree_data.descendants().slice(1);
 
-        // Normalize for fixed-depth.
-        var max_depth = 0;
-        nodes.forEach(function(d) { max_depth = Math.max(max_depth, d.depth); });
+        if (gmode == "scatter") {
+          d3.select("#xmode").transition()
+              .duration(duration)
+              .style("max-height", "50px")
+              .style("opacity", 1);
+          var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
+          nodes.forEach(function (v) {
+            if (v.data.fake != "") return;
+            var score = v.data.scores[xmode];
+            if (score === undefined) {
+              return;
+            }
+            if (score > max) {
+              max = score;
+            }
+            if (score < min) {
+              min = score;
+            }
+          });
+          min = min == Number.POSITIVE_INFINITY ? 0 : min;
+          max = max == Number.NEGATIVE_INFINITY ? 0 : max;
+          min *= 0.9;
+          max *= 1.1;
+          xscale = d3.scaleLinear()
+              .domain([min, max])
+              .range([0, width]);
 
-        xscale = d3.scaleLinear()
-              .domain([1, max_depth + 0.25])
-              .range([0, Math.max(width, 150 * (max_depth - 1))]);
+          nodes.forEach(function(d) { d.y = d.data.fake == "" ? xscale(d.data.scores[xmode]) : 0; });
+        }
+        else {
+          d3.select("#xmode").transition()
+              .duration(duration)
+              .style("max-height", "0px")
+              .style("opacity", 0);
+          // Normalize for fixed-depth.
+          var max_depth = 0;
+          nodes.forEach(function(d) { max_depth = Math.max(max_depth, d.depth); });
 
-        nodes.forEach(function(d) { d.y = xscale(d.depth); });
+          xscale = d3.scaleLinear()
+                .domain([1, max_depth + 0.25])
+                .range([0, Math.max(width, 150 * (max_depth - 1))]);
 
+          nodes.forEach(function(d) { d.y = xscale(d.depth); });
+          xtext = "Generations";
+        }
         xaxis.scale(xscale)
             .ticks(max_depth);
         svg.selectAll("g.x.axis")
@@ -231,8 +292,10 @@
             .duration(duration)
             .attr("opacity", 1)
             .call(xaxis);
+        xlabel
+            .text(xtext);
 
-        if (gmode == "genline") {
+        if (gmode == "genline" || gmode == "scatter") {
           var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
           nodes.forEach(function (v) {
             if (v.data.fake != "") return;
@@ -492,11 +555,20 @@
       Graph mode:
       <div class="btn-group">
         <button class="btn" value="genline">Generational line</option>
+        <button class="btn" value="scatter">Scatter</option>
         <button class="btn" value="tree">Tree</option>
       </div>
     </div>
-    <div id="ymode">
+    <div id="ymode" style="padding-bottom: 4px">
       Y-axis and color (darker means higher value, grey means no score submitted):
+      <div class="btn-group">
+        {% for attr in score_attrs %}
+          <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <div id="xmode" style="padding-bottom: 4px; max-height: 0; opacity: 0">
+      X-axis:
       <div class="btn-group">
         {% for attr in score_attrs %}
           <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
