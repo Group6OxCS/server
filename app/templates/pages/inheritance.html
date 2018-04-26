@@ -65,7 +65,7 @@
 {% block extra_js %}
     <script src="{% static 'js/d3.v5.js' %}"></script>
     <script>
-      var margin = {top: 20, right: 150, bottom: 40, left: 60},
+      var margin = {top: 20, right: 20, bottom: 50, left: 80},
           width = 960 - margin.right - margin.left,
           height = 500 - margin.top - margin.bottom;
 
@@ -113,15 +113,15 @@
         // text label for the x axis
         xlabel = svg.append("text")
             .attr("transform",
-                  "translate(" + (0) + " ," +
-                                (height + 30) + ")")
-            .style("text-anchor", "left")
+                  "translate(" + (width / 2) + " ," +
+                                (height + 40) + ")")
+            .style("text-anchor", "middle")
             .text("Generation");
 
         // text label for the y axis
         ylabel = svg.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 0 - 50)
+            .attr("y", 0 - 70)
             .attr("x", 0 - (height / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
@@ -266,6 +266,8 @@
           xscale = d3.scaleLinear()
               .domain([min, max])
               .range([0, width]);
+          xlabel
+              .text(xtext);
 
           nodes.forEach(function(d) { d.y = d.data.fake == "" ? xscale(d.data.scores[xmode]) : 0; });
         }
@@ -283,7 +285,8 @@
                 .range([0, Math.max(width, 150 * (max_depth - 1))]);
 
           nodes.forEach(function(d) { d.y = xscale(d.depth); });
-          xtext = "Generations";
+          xlabel
+              .text("Generations");
         }
         xaxis.scale(xscale)
             .ticks(max_depth);
@@ -292,8 +295,6 @@
             .duration(duration)
             .attr("opacity", 1)
             .call(xaxis);
-        xlabel
-            .text(xtext);
 
         if (gmode == "genline" || gmode == "scatter") {
           var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
