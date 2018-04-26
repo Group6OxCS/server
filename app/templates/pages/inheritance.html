@@ -123,7 +123,7 @@
         })
 
         setYMode(ymode);
-        setGMode("tree");
+        setGMode("genline");
         update(root);
       })
 
@@ -232,6 +232,8 @@
               min = score;
             }
           });
+          min = min == Number.POSITIVE_INFINITY ? 0 : min;
+          max = max == Number.NEGATIVE_INFINITY ? 0 : max;
           min *= 0.9;
           max *= 1.1;
           yscale = d3.scaleLinear()
@@ -298,10 +300,6 @@
             .attr("width", 500)
             .attr("x", 10)
             .attr("height", 100);
-
-        function getBB(selection) {
-            selection.each(function(d){d.bbox = this.getBBox();console.log(d.bbox)})
-        }
 
         // UPDATE
         var nodeUpdate = nodeEnter.merge(node);
@@ -479,8 +477,8 @@
     <div id="gmode">
       Graph mode:
       <div class="btn-group">
-        <button class="btn" value="tree">Tree</option>
         <button class="btn" value="genline">Generational line</option>
+        <button class="btn" value="tree">Tree</option>
       </div>
     </div>
   </div>
