@@ -93,8 +93,6 @@ function Car:new()
 end
 
 function Car:obstacle_detection(start_angle, end_angle, cap)
-    print(start_angle)
-    print(end_angle)
     if end_angle < start_angle then
         start_angle, end_angle = end_angle, start_angle
     end

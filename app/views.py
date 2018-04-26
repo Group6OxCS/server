@@ -50,7 +50,9 @@ def inheritance(request, *, track_id=None):
 
 
 def play(request):
-    return render(request, "pages/play.html", {})
+    return render(request, "pages/play.html", {
+            "script_scores": list(models.Score.objects.filter(script__name="Humans")),
+        })
 
 
 def play_submit(request):
@@ -76,7 +78,7 @@ def play_submit(request):
         score = models.Score(script=human_script, track=track, scores=scores)
         score.save()
 
-    return redirect("app_index")
+    return redirect("app_leaderboard", track.id)
 
 
 def scripts_view(request, *, script_id):
@@ -178,6 +180,7 @@ def scripts_run(request, *, script_id=None):
             "code": code,
             "parent": parent,
             "parent_scores": list(models.Score.objects.filter(script=parent)),
+            "script_scores": list(models.Score.objects.filter(script=script)) if script else [],
             "language": language
         })
 
@@ -224,6 +227,7 @@ def scripts_submit(request, *, script_id=None):
         score = models.Score(script=script, track=track, scores=scores)
         score.save()
 
+    return redirect("app_scripts_view", script.id)
     return render(request, "pages/scripts/submit.html", {
             "script": script,
             "score": score

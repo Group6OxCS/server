@@ -62,8 +62,8 @@
           var dataobj = JSON.parse(data);
           return JSON.stringify({
             script_name: script_name,
-            history: histories[dataobj.track] || [],
-            historyFramerate: historyFramerates[dataobj.track] || 0,
+            history: parent_scores[dataobj.track].history || [],
+            historyFramerate: parent_scores[dataobj.track].historyFramerate || 0,
           });
         },
         new_data: function (data, callback) {
@@ -81,8 +81,15 @@
         },
         end_level: function (data) {
           finished = true;
-          $("#hiddenscores").val(data);
-          $(".hidden-elems").show();
+          dataobj = JSON.parse(data);
+          console.log(dataobj);
+          if (script_scores[dataobj.track] !== undefined && dataobj.time > script_scores[dataobj.track].time) {
+            $(".hidden-elems#nosub").show();
+          }
+          else {
+            $("#hiddenscores").val(data);
+            $(".hidden-elems#sub").show();
+          }
         }
       };
 
@@ -99,14 +106,14 @@
   <script>
     runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");
     script_name = "{{ name }}";
-    histories = {
+    parent_scores = {
       {% for score in parent_scores %}
-        ["{{ score.track.level }}"]: {{ score.scores.history|safe }},
+        ["{{ score.track.level }}"]: {{ score.scores|safe }},
       {% endfor %}
     };
-    historyFramerates = {
-      {% for score in parent_scores %}
-        ["{{ score.track.level }}"]: {{ score.scores.historyFramerate|safe }}
+    script_scores = {
+      {% for score in script_scores %}
+        ["{{ score.track.level }}"]: {{ score.scores|safe }},
       {% endfor %}
     };
   </script>
@@ -118,8 +125,11 @@
     <textarea name="scores" id="hiddenscores" style="display:none"></textarea>
     {% if script %}
       <a class="btn btn-primary" href="{% url 'app_scripts_view' script.id %}">Back to Script</a>
-      <div class="hidden-elems" style="display:none">
+      <div class="hidden-elems alert alert-success" id="sub" style="display:none">
         <input type="submit" value="Submit New Score" class="btn btn-success" formaction="{% url 'app_scripts_submit_existing' script.id %}" />
+      </div>
+      <div class="hidden-elems alert alert-warning" id="nosub" style="display:none">
+        Score is worse than the previously submitted one
       </div>
       <textarea name="code" id="hiddencode" style="display:none">{{ script.code }}</textarea>
     {% else %}
@@ -129,7 +139,7 @@
       <input type="hidden" name="language" value="{{ language.id }}" />
 
       <input type="submit" value="Back to Editing" class="btn btn-primary" formaction="{% url 'app_scripts_new' %}" />
-      <div class="hidden-elems" style="display:none">
+      <div class="hidden-elems" id="sub" style="display:none">
         <input type="submit" value="Submit Your Script!" class="btn btn-success" formaction="{% url 'app_scripts_submit' %}" />
       </div>
     {% endif %}

@@ -43,8 +43,15 @@
         },
         end_level: function (data) {
           finished = true;
-          $("#hiddenscores").val(data);
-          $(".hidden-elems").show();
+          dataobj = JSON.parse(data);
+          console.log(dataobj);
+          if (script_scores[dataobj.track] !== undefined && dataobj.time > script_scores[dataobj.track].time) {
+            $(".hidden-elems#nosub").show();
+          }
+          else {
+            $("#hiddenscores").val(data);
+            $(".hidden-elems#sub").show();
+          }
         }
       };
 
@@ -52,6 +59,16 @@
         loadUnity();
       });
     </script>
+{% endblock %}
+
+{% block extra_head %}
+  <script>
+    script_scores = {
+      {% for score in script_scores %}
+        ["{{ score.track.level }}"]: {{ score.scores|safe }},
+      {% endfor %}
+    };
+  </script>
 {% endblock %}
 
 {% block main %}
@@ -74,9 +91,12 @@
   <form id="hiddenform" method="post">
     {% csrf_token %}
     <textarea name="scores" id="hiddenscores" style="display:none"></textarea>
-      <div class="hidden-elems" style="display:none">
-        <input type="submit" value="Submit New Score" class="btn btn-success" formaction="{% url 'app_play_submit' %}" />
-      </div>
+    <div class="hidden-elems alert alert-success" id="sub" style="display:none">
+      <input type="submit" value="Submit New Score" class="btn btn-success" formaction="{% url 'app_play_submit' %}" />
+    </div>
+    <div class="hidden-elems alert alert-warning" id="nosub" style="display:none">
+      Score is worse than the previously submitted one
+    </div>
   </form>
   <div class="game-container">
     <div id="gameContainer"></div>
