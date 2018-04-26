@@ -5,8 +5,8 @@ import json
 from . import models
 
 
-SCORES_ATTRS = ["time", "fuel_used", "top_speed", "average_speed", "nitro_usage"]
-SCORES_TITLES = ["Time (s)", "Fuel Used", "Top Speed (m/s)", "Average Speed (m/s)", "Nitro Usage"]
+SCORES_ATTRS = ["time", "fuel_used", "top_speed", "average_speed", "distance_travelled", "nitro_usage"]
+SCORES_TITLES = ["Time (s)", "Fuel Used (arb.)", "Top Speed (m/s)", "Average Speed (m/s)", "Distance Travelled (m)", "Nitro Usage (* initial amount)"]
 
 
 def index(request):

@@ -219,7 +219,7 @@
         nodes.forEach(function(d) { max_depth = Math.max(max_depth, d.depth); });
 
         xscale = d3.scaleLinear()
-              .domain([1, max_depth])
+              .domain([1, max_depth + 0.25])
               .range([0, Math.max(width, 150 * (max_depth - 1))]);
 
         nodes.forEach(function(d) { d.y = xscale(d.depth); });
@@ -482,24 +482,25 @@
 {% block main %}
   <h1>Graphs</h1>
   <div class="tracks">
+    Track:
     {% for a_track in tracks %}
       <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
     {% endfor %}
   </div>
   <div id="options">
-    <div id="ymode">
-      Color by (darker means higher value, grey means no score submitted):
-      <div class="btn-group">
-        {% for attr in score_attrs %}
-          <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
-        {% endfor %}
-      </div>
-    </div>
-    <div id="gmode">
+    <div id="gmode" style="padding-top: 4px">
       Graph mode:
       <div class="btn-group">
         <button class="btn" value="genline">Generational line</option>
         <button class="btn" value="tree">Tree</option>
+      </div>
+    </div>
+    <div id="ymode">
+      Y-axis and color (darker means higher value, grey means no score submitted):
+      <div class="btn-group">
+        {% for attr in score_attrs %}
+          <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
+        {% endfor %}
       </div>
     </div>
   </div>
