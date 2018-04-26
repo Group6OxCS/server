@@ -22,9 +22,31 @@
         }
       })
 
-      $("form").submit(function() {
-        $("#hiddencode").val(editor.getValue());
-        editor.setValue("");
+      $("form").submit(function(evt) {
+        var err;
+        $.ajax({
+          type: 'POST',
+          url: "/scripts/check/",
+          data: {
+            name: $("form input[name='name']").val(),
+            code: editor.getValue(),
+            csrfmiddlewaretoken: $("form input[name='csrfmiddlewaretoken']").val(),
+          },
+          success: function (data) {
+            err = data;
+          },
+          async: false
+        });
+        console.log(err);
+        if (err) {
+          evt.preventDefault();
+          $("#errs").show();
+          $("#errs").html("<b>Error:</b> " + err);
+        }
+        else {
+          $("#hiddencode").val(editor.getValue());
+          editor.setValue("");
+        }
       })
 
       $("#language-selector").change(function() {
@@ -40,6 +62,8 @@
 {% endblock %}
 
 {% block main %}
+  <div id="errs" class="alert alert-danger" style="display:none">
+  </div>
   <form action="{% url 'app_scripts_run' %}" method="post">
     {% csrf_token %}
     <div class="col-xs-8">

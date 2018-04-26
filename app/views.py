@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseBadRequest, Http404
+from django.http import HttpResponseBadRequest, Http404, HttpResponse
 from django.db import transaction
 import json
 from . import models
@@ -128,6 +128,22 @@ def scripts_new(request, *, parent_id=None):
         })
 
 
+def check_script(request):
+    if request.method != "POST" or "name" not in request.POST or "code" not in request.POST:
+        return HttpResponseBadRequest()
+    if not request.POST["name"]:
+        return HttpResponse("Name must not be empty")
+    try:
+        models.Script.objects.get(name=request.POST["name"])
+    except models.Script.DoesNotExist:
+        pass
+    else:
+        return HttpResponse("Name must be unique")
+    if not request.POST["code"]:
+        return HttpResponse("Code must not be empty")
+    return HttpResponse("")
+
+
 def scripts_run(request, *, script_id=None):
     # Run of a new script
     if request.method == "POST":
@@ -153,7 +169,6 @@ def scripts_run(request, *, script_id=None):
         code = script.code
         language = script.language
         parent = script.parent
-
     else:
         return HttpResponseBadRequest()
 
