@@ -41,6 +41,17 @@
         fill: #000;
       }
 
+      .lines line {
+        stroke: lightgrey;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+        stroke-dasharray: 5,5;
+      }
+
+      .lines path {
+        stroke-width: 0;
+      }
+
       .fake {
         display: none;
       }
@@ -65,11 +76,12 @@
 
       var svg, options, root, defs, duration = 750, selection = [];
       var xscale = d3.scaleLinear(), yscale = d3.scaleLinear();
-      var xaxis, yaxis, xlabel, ylabel;
+      var xaxis, yaxis, xlabel, ylabel, ylines;
       var ymode, gmode, ytext;
 
       $(document).ready(function () {
         yaxis = d3.axisLeft();
+        ylines = d3.axisLeft().tickFormat("");
         xaxis = d3.axisBottom();
 
         svg = d3.select("#graph").append("svg")
@@ -83,7 +95,10 @@
 
         svg.append("g")
             .attr("class", "y axis")
-            .attr("transform", "translate(" + 0 + ",0)");
+            .attr("transform", "translate(0,0)");
+        svg.append("g")
+            .attr("class", "y axis lines")
+            .attr("transform", "translate(0,0)");
 
         svg.append("g")
             .attr("class", "x axis")
@@ -241,12 +256,18 @@
               .range([height, 0]);
           nodes.forEach(function(d) { d.x = yscale(d.data.value || min); });
           yaxis.scale(yscale);
+          ylines.scale(yscale).tickSize(-width);
 
           svg.selectAll("g.y.axis")
               .transition()
               .duration(duration)
               .attr("opacity", 1)
               .call(yaxis);
+          svg.selectAll("g.y.axis.lines")
+              .transition()
+              .duration(duration)
+              .attr("opacity", 1)
+              .call(ylines);
           ylabel
               .transition()
               .duration(duration)
