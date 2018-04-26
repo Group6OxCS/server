@@ -62,8 +62,8 @@
           var dataobj = JSON.parse(data);
           return JSON.stringify({
             script_name: script_name,
-            history: parent_scores[dataobj.track].history || [],
-            historyFramerate: parent_scores[dataobj.track].historyFramerate || 0,
+            history: (parent_scores[dataobj.track] || {}).history || [],
+            historyFramerate: (parent_scores[dataobj.track] || {}).historyFramerate || 0,
           });
         },
         new_data: function (data, callback) {
