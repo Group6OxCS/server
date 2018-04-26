@@ -243,7 +243,7 @@
         if (gmode == "scatter") {
           d3.select("#xmode").transition()
               .duration(duration)
-              .style("max-height", "50px")
+              .style("max-height", "60px")
               .style("opacity", 1);
           var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
           nodes.forEach(function (v) {
@@ -545,14 +545,14 @@
 {% block main %}
   <h1>Graphs</h1>
   <div class="tracks">
-    Track:
+    Track:<br />
     {% for a_track in tracks %}
       <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
     {% endfor %}
   </div>
   <div id="options">
     <div id="gmode" style="padding-top: 4px">
-      Graph mode:
+      Graph mode:<br />
       <div class="btn-group">
         <button class="btn" value="genline">Generational line</option>
         <button class="btn" value="scatter">Scatter</option>
@@ -560,7 +560,7 @@
       </div>
     </div>
     <div id="ymode" style="padding-bottom: 4px">
-      Y-axis and color (darker means higher value, grey means no score submitted):
+      Y-axis and color (darker means higher value, grey means no score submitted):<br />
       <div class="btn-group">
         {% for attr in score_attrs %}
           <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
@@ -568,7 +568,7 @@
       </div>
     </div>
     <div id="xmode" style="padding-bottom: 4px; max-height: 0; opacity: 0">
-      X-axis:
+      X-axis:<br />
       <div class="btn-group">
         {% for attr in score_attrs %}
           <button class="btn" value="{{ attr }}">{{ score_titles|getattribute:forloop.counter0 }}</button>
