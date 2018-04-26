@@ -62,8 +62,8 @@
           var dataobj = JSON.parse(data);
           return JSON.stringify({
             script_name: script_name,
-            history: (parent_scores[dataobj.track] || {}).history || [],
-            historyFramerate: (parent_scores[dataobj.track] || {}).historyFramerate || 0,
+            history: (replay_scores[dataobj.track] || {}).history || [],
+            historyFramerate: (replay_scores[dataobj.track] || {}).historyFramerate || 0,
           });
         },
         new_data: function (data, callback) {
@@ -106,8 +106,8 @@
   <script>
     runtimeWorker = new Worker("{% static "runtimes/" %}{{ language.runtime }}");
     script_name = "{{ name }}";
-    parent_scores = {
-      {% for score in parent_scores %}
+    replay_scores = {
+      {% for score in replay_scores %}
         ["{{ score.track.level }}"]: {{ score.scores|safe }},
       {% endfor %}
     };
@@ -120,6 +120,14 @@
 {% endblock %}
 
 {% block main %}
+  <div class="alert alert-info">
+    <h3 style="margin-top: 0">Controls</h3>
+    <ul>
+      <li>
+        <b>Slow motion (1/10 speed):</b> <code>T</code>
+      </li>
+    </ul>
+  </div>
   <form id="hiddenform" method="post">
     {% csrf_token %}
     <textarea name="scores" id="hiddenscores" style="display:none"></textarea>

@@ -7,6 +7,13 @@
       $(document).ready(function() {
         $("table")
           .tablesorter({widgets: ['zebra'], sortList: [[0, 0]]});
+        $("input[name='withreplay']").change(function() {
+            if( $(this).is(':checked')) {
+                $("select[name='replay']").show();
+            } else {
+                $("select[name='replay']").hide();
+            }
+        });
       });
     </script>
 {% endblock %}
@@ -21,11 +28,29 @@
           Children:
           {% for child in children %}{% if forloop.last and forloop.counter0 > 0 %} and {% elif forloop.counter0 > 0 %}, {% endif %}<a href="{% url 'app_scripts_view' child.id %}">{{ child.name }}</a>{% empty %}None{% endfor %}
         </h5>
-        <a href="{% url 'app_scripts_run_existing' script.id %}" class="btn btn-primary">Run</a>
         <a href="{% url 'app_scripts_fork' script.id %}" class="btn btn-primary">Fork</a>
+        <form method="get" action="{% url 'app_scripts_run_existing' script.id %}" style="display: inline-block">
+            <input type="submit" value="Run" class="btn btn-primary" />
+            <label for="withreplay">With replay</label>
+            <input type="checkbox" name="withreplay" />
+            <select name="replay" style="display:none">
+              {% for script_ in scripts %}
+                <option value="{{ script_.id }}"  {% if script_.id == script.parent.id %}selected{% endif %}>{{ script_.name }}</option>
+              {% endfor %}
+            </select>
+        </form>
     {% else %}
         <h4>Not an AI</h4>
-        <a href="{% url 'app_play' %}" class="btn btn-primary">Play</a>
+        <form method="get" action="{% url 'app_play' %}" style="display: inline-block">
+            <input type="submit" value="Play" class="btn btn-primary" />
+            <label for="withreplay">With replay</label>
+            <input type="checkbox" name="withreplay" />
+            <select name="replay" style="display:none">
+              {% for script_ in scripts %}
+                <option value="{{ script_.id }}"  {% if script_.id == script.parent.id %}selected{% endif %}>{{ script_.name }}</option>
+              {% endfor %}
+            </select>
+        </form>
     {% endif %}
   </div>
   <h3>Scores</h3>

@@ -57,6 +57,13 @@
           hljs.highlightBlock(block);
         });
       })
+      $("input[name='withreplay']").change(function() {
+          if( $(this).is(':checked')) {
+              $("select[name='replay']").show();
+          } else {
+              $("select[name='replay']").hide();
+          }
+      });
     })
   </script>
 {% endblock %}
@@ -78,8 +85,16 @@
       <pre id="code">{{ code }}</pre><br/>
       <textarea name="code" id="hiddencode" style="display:none"></textarea>
       <input type="hidden" name="parent" value="{{ parent.id }}" />
-
-      <input type="submit" value="Run" class="btn btn-primary pull-right" />
+      <div class="pull-right">
+        <input type="submit" value="Run" class="btn btn-primary" />
+        <label for="withreplay">With replay</label>
+        <input type="checkbox" name="withreplay" />
+        <select name="replay" style="display:none">
+          {% for script_ in scripts %}
+            <option value="{{ script_.id }}"  {% if script_.id == script.parent.id %}selected{% endif %}>{{ script_.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
     <div class="col-xs-4">
       <div id="language-info">{{ language.help_text_file|load_docs|safe }}</div>

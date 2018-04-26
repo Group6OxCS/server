@@ -50,7 +50,16 @@ def inheritance(request, *, track_id=None):
 
 
 def play(request):
+    if request.GET.get("withreplay", request.POST.get("withreplay", "off")) == "on":
+        if not request.GET.get("replay", request.POST.get("replay")):
+            return HttpResponseBadRequest()
+        replay = get_object_or_404(models.Script, id=request.GET.get("replay", request.POST.get("replay")))
+    else:
+        replay = None
+
     return render(request, "pages/play.html", {
+            "replay": replay,
+            "replay_scores": list(models.Score.objects.filter(script=replay)) if replay else [],
             "script_scores": list(models.Score.objects.filter(script__name="Humans")),
         })
 
@@ -91,7 +100,8 @@ def scripts_view(request, *, script_id):
             "scores": objs,
             "children": models.Script.objects.filter(parent=script),
             "score_attrs": SCORES_ATTRS,
-            "score_titles": SCORES_TITLES
+            "score_titles": SCORES_TITLES,
+            "scripts": list(models.Script.objects.order_by("name").all())
         })
 
 
@@ -126,7 +136,8 @@ def scripts_new(request, *, parent_id=None):
             "code": code,
             "parent": parent,
             "language": language,
-            "languages": languages
+            "languages": languages,
+            "scripts": list(models.Script.objects.order_by("name").all())
         })
 
 
@@ -147,6 +158,7 @@ def check_script(request):
 
 
 def scripts_run(request, *, script_id=None):
+    print(request.GET.keys(), request.POST.keys())
     # Run of a new script
     if request.method == "POST":
         if (not request.POST.get("name")
@@ -174,12 +186,20 @@ def scripts_run(request, *, script_id=None):
     else:
         return HttpResponseBadRequest()
 
+    if request.GET.get("withreplay", request.POST.get("withreplay", "off")) == "on":
+        if not request.GET.get("replay", request.POST.get("replay")):
+            return HttpResponseBadRequest()
+        replay = get_object_or_404(models.Script, id=request.GET.get("replay", request.POST.get("replay")))
+    else:
+        replay = None
+
     return render(request, "pages/scripts/run.html", {
             "script": script,
             "name": name,
             "code": code,
             "parent": parent,
-            "parent_scores": list(models.Score.objects.filter(script=parent)),
+            "replay": replay,
+            "replay_scores": list(models.Score.objects.filter(script=replay)) if replay else [],
             "script_scores": list(models.Score.objects.filter(script=script)) if script else [],
             "language": language
         })
