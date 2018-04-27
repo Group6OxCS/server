@@ -65,7 +65,7 @@
 {% block extra_js %}
     <script src="{% static 'js/d3.v5.js' %}"></script>
     <script>
-      var margin = {top: 20, right: 20, bottom: 50, left: 80},
+      var margin = {top: 20, right: 70, bottom: 50, left: 80},
           width = 960 - margin.right - margin.left,
           height = 500 - margin.top - margin.bottom;
 
@@ -261,8 +261,9 @@
           });
           min = min == Number.POSITIVE_INFINITY ? 0 : min;
           max = max == Number.NEGATIVE_INFINITY ? 0 : max;
-          min *= 0.9;
-          max *= 1.1;
+          var range = max - min;
+          min -= range * 0.1;
+          max += range * 0.1;
           xscale = d3.scaleLinear()
               .domain([min, max])
               .range([0, width]);
@@ -313,8 +314,9 @@
           });
           min = min == Number.POSITIVE_INFINITY ? 0 : min;
           max = max == Number.NEGATIVE_INFINITY ? 0 : max;
-          min *= 0.9;
-          max *= 1.1;
+          var range = max - min;
+          min -= range * 0.1;
+          max += range * 0.1;
           yscale = d3.scaleLinear()
               .domain([min, max])
               .range([height, 0]);
