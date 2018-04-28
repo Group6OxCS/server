@@ -83,6 +83,14 @@
       var xaxis, yaxis, xlabel, ylabel, ylines;
       var ymode, gmode, xmode, ytext, xtext;
 
+      function suffix(n) {
+        if (n >= 10 && n <= 20) return "th";
+        if (n % 10 == 1) return "st";
+        if (n % 10 == 2) return "nd";
+        if (n % 10 == 3) return "rd";
+        return "th";
+      }
+
       $(document).ready(function () {
         yaxis = d3.axisLeft();
         ylines = d3.axisLeft().tickFormat("");
@@ -270,7 +278,7 @@
           xlabel
               .text(xtext);
 
-          nodes.forEach(function(d) { d.y = d.data.fake == "" ? xscale(d.data.scores[xmode]) : 0; });
+          nodes.forEach(function(d) { d.y = d.data.fake == "" ? xscale(d.data.scores[xmode] || min) : 0; });
         }
         else {
           d3.select("#xmode").transition()
@@ -320,7 +328,7 @@
           yscale = d3.scaleLinear()
               .domain([min, max])
               .range([height, 0]);
-          nodes.forEach(function(d) { d.x = yscale(d.data.value || min); });
+          nodes.forEach(function(d) { d.x = d.data.fake == "" ? yscale(d.data.scores[ymode] || min) : 0; });
           yaxis.scale(yscale);
           ylines.scale(yscale).tickSize(-width);
 
@@ -382,6 +390,7 @@
 
         nodeEnter.append("g")
             .attr("class", "txt-holder")
+            .attr("opacity", 0)
             .append("foreignObject")
             .attr("class", "txt")
             .attr("width", 500)
@@ -410,7 +419,11 @@
         nodeUpdate.select('.txt')
           .attr('x', gmode == "tree" ? 10 : 5)
           .html(function(d) {
-              return "<span>" + d.data.name + "<br />" + (d.data.value === undefined ? "No Score" : "Score: " + d.data.value) + "</span>";
+              if (d.data.fake !== "") return "";
+              return ("<span><b>" + d.data.name + "</b><br />"
+              + (gmode == "scatter" ? xtext + ": " + (d.data.scores[xmode] === undefined ? "No score" : d.data.scores[xmode] + " " + /\((.*)\)/.exec(xtext)[1])
+                                    : "Generation: " + (d.depth + suffix(d.depth))) + "<br />"
+              + ytext + ": " + (d.data.scores[ymode] === undefined ? "No score" : d.data.scores[ymode] + " " + /\((.*)\)/.exec(ytext)[1]) + "</span>");
           });
 
         nodeUpdate.select(".txt-holder").transition()
