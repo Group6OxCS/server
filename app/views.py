@@ -6,7 +6,7 @@ from . import models
 
 
 SCORES_ATTRS = ["time", "fuel_used", "top_speed", "average_speed", "distance_travelled", "nitro_usage"]
-SCORES_TITLES = ["Time (s)", "Fuel Used (arb.)", "Top Speed (m/s)", "Average Speed (m/s)", "Distance Travelled (m)", "Nitro Usage (* initial amount)"]
+SCORES_TITLES = ["Time (s)", "Fuel Used (arb.)", "Top Speed (m/s)", "Average Speed (m/s)", "Distance Travelled (m)", "Nitro Usage (* initial)"]
 
 
 def index(request):

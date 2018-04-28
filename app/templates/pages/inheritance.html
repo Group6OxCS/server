@@ -420,10 +420,10 @@
           .attr('x', gmode == "tree" ? 10 : 5)
           .html(function(d) {
               if (d.data.fake !== "") return "";
-              return ("<span><b>" + d.data.name + "</b><br />"
-              + (gmode == "scatter" ? xtext + ": " + (d.data.scores[xmode] === undefined ? "No score" : d.data.scores[xmode] + " " + /\((.*)\)/.exec(xtext)[1])
-                                    : "Generation: " + (d.depth + suffix(d.depth))) + "<br />"
-              + ytext + ": " + (d.data.scores[ymode] === undefined ? "No score" : d.data.scores[ymode] + " " + /\((.*)\)/.exec(ytext)[1]) + "</span>");
+              var x = (gmode == "scatter" ? /^(.*) \((.*)\)$/.exec(xtext)[1] + ": " + (d.data.scores[xmode] === undefined ? "No score" : d.data.scores[xmode] + " " + /^(.*) \((.*)\)$/.exec(xtext)[2])
+                                           : "Generation: " + (d.depth + suffix(d.depth)));
+              var y = /^(.*) \((.*)\)$/.exec(ytext)[1] + ": " + (d.data.scores[ymode] === undefined ? "No score" : d.data.scores[ymode] + " " + /^(.*) \((.*)\)$/.exec(ytext)[2]);
+              return "<span><b>" + d.data.name + "</b><br />" + x + "<br />" + y + "</span>";
           });
 
         nodeUpdate.select(".txt-holder").transition()
