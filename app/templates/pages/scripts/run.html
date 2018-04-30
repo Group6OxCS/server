@@ -126,6 +126,9 @@
       <li>
         <b>Slow motion (1/10 speed):</b> <code>T</code>
       </li>
+      <li>
+        <b>Pause:</b> <code>P</code>
+      </li>
     </ul>
   </div>
   <form id="hiddenform" method="post">
@@ -147,7 +150,7 @@
       <input type="hidden" name="language" value="{{ language.id }}" />
 
       <input type="submit" value="Back to Editing" class="btn btn-primary" formaction="{% url 'app_scripts_new' %}" />
-      <div class="hidden-elems" id="sub" style="display:none">
+      <div class="hidden-elems alert alert-success" id="sub" style="display:none">
         <input type="submit" value="Submit Your Script!" class="btn btn-success" formaction="{% url 'app_scripts_submit' %}" />
       </div>
     {% endif %}

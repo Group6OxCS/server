@@ -108,6 +108,25 @@ function Car:obstacle_detection(start_angle, end_angle, cap)
     return detection
 end
 
+function Car:obstacle_detection_range(angle)
+    angle = math.abs(angle)
+    local angles = {0, 2, 6, 10, 22, 45}
+    local ranges = {150, 100, 90, 40, 40, 30}
+    local i = 1
+    while i < 7 do
+        if angle <= angles[i] then
+            if i == 1 then
+                return ranges[1]
+            else
+                local interp = (angle - angles[i - 1]) / (angles[i] - angles[i - 1])
+                return ranges[i - 1] * (1 - interp) + ranges[i] * interp
+            end
+        end
+        i = i + 1
+    end
+    return 0
+end
+
 function module.verify()
     captured_control = _G.control
     assert(captured_control ~= nil, "Could not find control function")

@@ -83,6 +83,24 @@ api = {
             return detection;
         }
 
+        obstacle_detection_range(angle) {
+            angle = Math.abs(angle);
+            var angles = [0, 2, 6, 10, 22, 45],
+                ranges = [150, 100, 90, 40, 40, 30];
+            for (var i = 0; i < angles.length; ++i) {
+                if (angle <= angles[i]) {
+                    if (i == 0) {
+                        return ranges[0];
+                    }
+                    else {
+                        var interp = (angle - angles[i - 1]) / (angles[i] - angles[i - 1]);
+                        return ranges[i - 1] * (1 - interp) + ranges[i] * interp;
+                    }
+                }
+            }
+            return 0;
+        }
+
         serialize() {
             return JSON.stringify({
                 steering: this._steering,

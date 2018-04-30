@@ -71,6 +71,19 @@ class Car:
             return NO_DETECTION
         return detection
 
+    def obstacle_detection_range(self, angle):
+        angle = abs(angle)
+        angles = [0, 2, 6, 10, 22, 45]
+        ranges = [150, 100, 90, 40, 40, 30]
+        for i in range(len(angles)):
+            if angle <= angles[i]:
+                if i == 0:
+                    return ranges[0]
+                else:
+                    interp = (angle - angles[i - 1]) / (angles[i] - angles[i - 1])
+                    return ranges[i - 1] * (1 - interp) + ranges[i] * interp
+        return 0
+
     def serialize(self):
         return json.dumps({
             "steering": self.steering,

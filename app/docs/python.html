@@ -15,6 +15,7 @@ def control(car):
 <div class="code-item"><code>car.speed: float</code>: Current car speed</div>
 <div class="code-item"><code>car.obstacle_detection(start, end[, cap]): float</code>: Distance to nearest obstacle between the angles of <code>start</code> and <code>end</code>. <code>cap</code> can be used to reduce the detection range. Returns <code>api.NO_DETECTION</code> if no obstacles are near enough.</div>
 <div class="code-item"><code>car.obstacle_detection_rays: dict[float, float]</code>: Dictionary of angle to distance to nearest obstacle at that angle</div>
+<div class="code-item"><code>car.obstacle_detection_range(angle): float</code>: Maximum range of obstacle detection rays for that angle</div>
 <div class="code-item"><code>car.waypoint_distance: number</code>: Distance to next waypoint</div>
 <div class="code-item"><code>car.waypoint_bearing: number</code>: Bearing to next waypoint</div>
 <div class="code-item"><code>car.future_waypoint_distance: number</code>: Distance to waypoint after the current one</div>
