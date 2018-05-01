@@ -93,6 +93,15 @@ function Car:new()
 end
 
 function Car:obstacle_detection(start_angle, end_angle, cap)
+    if type(start_angle) ~= "number" then
+        error("number expected for start_angle (make sure to use car:obstacle_detection, not car.obstacle_detection)", 2)
+    end
+    if type(end_angle) ~= "number" then
+        error("number expected for end_angle (make sure to use car:obstacle_detection, not car.obstacle_detection)", 2)
+    end
+    if type(end_angle) ~= "number" and end_angle ~= nil then
+        error("number or nil expected for cap (make sure to use car:obstacle_detection, not car.obstacle_detection)", 2)
+    end
     if end_angle < start_angle then
         start_angle, end_angle = end_angle, start_angle
     end
@@ -109,6 +118,9 @@ function Car:obstacle_detection(start_angle, end_angle, cap)
 end
 
 function Car:obstacle_detection_range(angle)
+    if type(angle) ~= "number" then
+        error("number expected for angle (make sure to use car:obstacle_detection_range, not car.obstacle_detection_range)", 2)
+    end
     angle = math.abs(angle)
     local angles = {0, 2, 6, 10, 22, 45}
     local ranges = {150, 100, 90, 40, 40, 30}
