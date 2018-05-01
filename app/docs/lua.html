@@ -14,13 +14,14 @@ end</code></pre>
 
 <h4>Sensors</h4>
 <div class="code-item"><code>car.speed: number</code>: Current car speed</div>
+<div class="code-item"><code>car.bearing: number</code>: Current car bearing relative to the car's forward. Close to 0 except when drifting.</div>
 <div class="code-item"><code>car:obstacle_detection(start, end[, cap]): float</code>: Distance to nearest obstacle between the angles of <code>start</code> and <code>end</code>. <code>cap</code> can be used to reduce the detection range. Returns <code>api.NO_DETECTION</code> if no obstacles are near enough.</div>
 <div class="code-item"><code>car.obstacle_detection_rays: table</code>: Table of angle to distance to nearest obstacle at that angle</div>
 <div class="code-item"><code>car:obstacle_detection_range(angle): number</code>: Maximum range of obstacle detection rays for that angle</div>
 <div class="code-item"><code>car.waypoint_distance: number</code>: Distance to next waypoint</div>
-<div class="code-item"><code>car.waypoint_bearing: number</code>: Bearing to next waypoint</div>
+<div class="code-item"><code>car.waypoint_bearing: number</code>: Bearing to next waypoint relative to the car's forward</div>
 <div class="code-item"><code>car.future_waypoint_distance: number</code>: Distance to waypoint after the current one</div>
-<div class="code-item"><code>car.future_waypoint_bearing: number</code>: Bearing to waypoint after the current one</div>
+<div class="code-item"><code>car.future_waypoint_bearing: number</code>: Bearing to waypoint after the current one relative to the car's forward</div>
 
 <h4>Notes</h4>
 <div class="code-item"><code>print</code> outputs to the console, so you will need to open your dev tools so view your script's output. Using <code>car.message</code> may be better.</div>
