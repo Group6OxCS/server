@@ -15,7 +15,7 @@ def index(request):
 
 def leaderboard(request, *, track_id=None):
     if track_id is None:
-        track = models.Track.objects.all()[0]
+        track = models.Track.objects.all().order_by("name")[0]
     else:
         track = get_object_or_404(models.Track, id=track_id)
     scripts = models.Script.objects.all().prefetch_related("language")
@@ -25,7 +25,7 @@ def leaderboard(request, *, track_id=None):
     return render(request, "pages/leaderboard.html", {
             "leaders": objs,
             "track": track,
-            "tracks": models.Track.objects.all(),
+            "tracks": models.Track.objects.all().order_by("name"),
             "score_attrs": SCORES_ATTRS,
             "score_titles": SCORES_TITLES
         })
@@ -33,7 +33,7 @@ def leaderboard(request, *, track_id=None):
 
 def inheritance(request, *, track_id=None):
     if track_id is None:
-        track = models.Track.objects.all()[0]
+        track = models.Track.objects.all().order_by("name")[0]
     else:
         track = get_object_or_404(models.Track, id=track_id)
     scripts = models.Script.objects.all().prefetch_related("parent")
@@ -43,7 +43,7 @@ def inheritance(request, *, track_id=None):
     return render(request, "pages/inheritance.html", {
             "scripts": objs,
             "track": track,
-            "tracks": models.Track.objects.all(),
+            "tracks": models.Track.objects.all().order_by("name"),
             "score_attrs": SCORES_ATTRS,
             "score_titles": SCORES_TITLES
         })
@@ -92,7 +92,7 @@ def play_submit(request):
 
 def scripts_view(request, *, script_id):
     script = get_object_or_404(models.Script, id=script_id)
-    tracks = models.Track.objects.all()
+    tracks = models.Track.objects.all().order_by("name")
     scores = {x.track.id: x for x in models.Score.objects.filter(script=script)}
     objs = [(t, scores.get(t.id)) for t in tracks]
     return render(request, "pages/scripts/view.html", {
