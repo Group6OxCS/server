@@ -31,19 +31,19 @@ def leaderboard(request, *, track_id=None):
         })
 
 
-def inheritance(request, *, track_id=None):
-    if track_id is None:
-        track = models.Track.objects.all().order_by("name")[0]
-    else:
-        track = get_object_or_404(models.Track, id=track_id)
-    scripts = models.Script.objects.all().prefetch_related("parent")
-    scores = {x.script_id: x for x in models.Score.objects.filter(track=track)}
-    objs = [(s, scores.get(s.id)) for s in scripts]
+def inheritance(request):
+    scripts = list(models.Script.objects.all().prefetch_related("parent"))
+    tracks = list(models.Track.objects.all().order_by("name"))
+    scores = {t.name: {} for t in tracks}
+    for score in models.Score.objects.all():
+        scores[score.track.name][score.script] = score
+    for script in scripts:
+        for track in tracks:
+            scores[track.name].setdefault(script, None)
 
     return render(request, "pages/inheritance.html", {
-            "scripts": objs,
-            "track": track,
-            "tracks": models.Track.objects.all().order_by("name"),
+            "scripts": {t: sorted(s.items(), key=lambda x: x[0].name) for t, s in scores.items()},
+            "tracks": tracks,
             "score_attrs": SCORES_ATTRS,
             "score_titles": SCORES_TITLES
         })

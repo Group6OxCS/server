@@ -81,7 +81,7 @@
       var svg, options, root, defs, duration = 750, selection = [];
       var xscale = d3.scaleLinear(), yscale = d3.scaleLinear();
       var xaxis, yaxis, xlabel, ylabel, ylines;
-      var ymode, gmode, xmode, ytext, xtext;
+      var ymode, gmode, xmode, ytext, xtext, track;
 
       function suffix(n) {
         if (n >= 10 && n <= 20) return "th";
@@ -135,29 +135,39 @@
             .style("text-anchor", "middle")
             .text("Value");
 
-        root = d3.hierarchy(nodes["fake"], function(d) { return d.children; });
-        root.y0 = 0;
-        root.x0 = height / 2;
+        root = {}
+        Object.keys(nodes).forEach(function (k) {
+          root[k] = d3.hierarchy(nodes[k]["fake"], function(d) { return d.children; });
+          root[k].y0 = 0;
+          root[k].x0 = height / 2;
+        })
 
         $("#ymode button").on("click", function () {
           setYMode($(this).attr("value"));
-          update(root);
+          update(root[track]);
         })
 
         $("#xmode button").on("click", function () {
           setXMode($(this).attr("value"));
-          update(root);
+          update(root[track]);
         })
 
         $("#gmode button").on("click", function () {
           setGMode($(this).attr("value"));
-          update(root);
+          update(root[track]);
         })
 
+        $("#tracks button").on("click", function () {
+          setTrack($(this).attr("value"));
+          setYMode(ymode);
+          update(root[track]);
+        })
+
+        setTrack(track);
         setYMode(ymode);
         setXMode(ymode);
         setGMode("genline");
-        update(root);
+        update(root[track]);
       })
 
       function setGMode(mode) {
@@ -191,6 +201,21 @@
         })
       }
 
+      function setTrack(mode) {
+        track = mode;
+
+        $("#tracks button").each(function () {
+          if ($(this).attr("value") == track) {
+            $(this).addClass("btn-primary");
+            $(this).removeClass("btn-default");
+          }
+          else {
+            $(this).addClass("btn-default");
+            $(this).removeClass("btn-primary");
+          }
+        })
+      }
+
       function setYMode(mode) {
         ymode = mode;
 
@@ -207,9 +232,9 @@
         })
 
         var min = Number.POSITIVE_INFINITY, max = Number.NEGATIVE_INFINITY;
-        Object.keys(nodes).forEach(function (k) {
+        Object.keys(nodes[track]).forEach(function (k) {
           if (k == "fake") return;
-          var v = nodes[k];
+          var v = nodes[track][k];
           var score = v.scores[ymode];
           if (score === undefined) {
             return;
@@ -223,9 +248,9 @@
         });
         var start_color = [0xe3, 0x4a, 0x33];
         var end_color = [0xff, 0xf7, 0xbc];
-        Object.keys(nodes).forEach(function (k) {
+        Object.keys(nodes[track]).forEach(function (k) {
           if (k == "fake") return;
-          var v = nodes[k];
+          var v = nodes[track][k];
           var score = v.scores[ymode];
           v.value = score;
           if (score === undefined) {
@@ -244,7 +269,7 @@
 
       function update(source) {
         // Compute the new tree layout.
-        var tree_data = treemap(root);
+        var tree_data = treemap(root[track]);
         var nodes = tree_data.descendants(),
             links = tree_data.descendants().slice(1);
 
@@ -522,57 +547,63 @@
 
 {% block extra_head %}
   <script>
-    nodes = {
-      fake: {
-        children: [],
-        fake: " fake",
-        value: 0,
-        id: 0
-      }
-    };
-    {% for script, score in scripts %}
-      nodes[{{ script.id }}] = {
-          id: {{ script.id }},
-          name: '{{ script.name }}',
-          url: "{% url 'app_scripts_view' script.id %}",
-          fake: "",
-          scores:
-            {% if score.scores %}
-              {{score.scores|mapround|safe}}
-            {% else %}
-              {}
-            {% endif %},
-          parent_id: {% if script.parent %}{{ script.parent.id }}{% else %}null{% endif %},
-          children: []
-        };
+    nodes = {};
+    {% for tname, tscores in scripts.items %}
+      nodes["{{ tname }}"] = {
+        fake: {
+          children: [],
+          fake: " fake",
+          value: 0,
+          id: 0
+        }
+      };
+      {% for script, score in tscores %}
+        nodes["{{ tname }}"][{{ script.id }}] = {
+            id: {{ script.id }},
+            name: '{{ script.name }}',
+            url: "{% url 'app_scripts_view' script.id %}",
+            fake: "",
+            scores:
+              {% if score.scores %}
+                {{score.scores|mapround|safe}}
+              {% else %}
+                {}
+              {% endif %},
+            parent_id: {% if script.parent %}{{ script.parent.id }}{% else %}null{% endif %},
+            children: []
+          };
+      {% endfor %}
+      {% for script, score in tscores %}
+          nodes["{{ tname }}"][{% if script.parent %}{{ script.parent.id }}{% else %}"fake"{% endif %}].children.push(nodes["{{ tname }}"][{{ script.id }}]);
+      {% endfor %}
+      Object.keys(nodes["{{ tname }}"]).forEach(function (k) {
+        if (nodes["{{ tname }}"][k].children.length == 0) {
+          nodes["{{ tname }}"][k].children = null
+        }
+      })
     {% endfor %}
-    {% for script, score in scripts %}
-        nodes[{% if script.parent %}{{ script.parent.id }}{% else %}"fake"{% endif %}].children.push(nodes[{{ script.id }}]);
-    {% endfor %}
-    Object.keys(nodes).forEach(function (k) {
-      if (nodes[k].children.length == 0) {
-        nodes[k].children = null
-      }
-    })
     ymode = "{{ score_attrs.0 }}";
+    track = "{{ tracks.0 }}"
   </script>
 {% endblock %}
 
 {% block main %}
   <h1>Graphs</h1>
-  <div class="tracks">
+  <div id="tracks">
     Track:<br />
-    {% for a_track in tracks %}
-      <a class="btn btn-{% if a_track == track %}primary{% else %}default{% endif %}" href="{% url 'app_inheritance' a_track.id %}">{{ a_track.name }}</a>
-    {% endfor %}
+    <div class="btn-group">
+      {% for a_track in tracks %}
+        <button class="btn" value="{{ a_track.name }}">{{ a_track.name }}</button>
+      {% endfor %}
+    </div>
   </div>
   <div id="options">
     <div id="gmode" style="padding-top: 4px">
       Graph mode:<br />
       <div class="btn-group">
-        <button class="btn" value="genline">Generational line</option>
-        <button class="btn" value="scatter">Scatter</option>
-        <button class="btn" value="tree">Tree</option>
+        <button class="btn" value="genline">Generational line</button>
+        <button class="btn" value="scatter">Scatter</button>
+        <button class="btn" value="tree">Tree</button>
       </div>
     </div>
     <div id="ymode" style="padding-bottom: 4px">
