@@ -22,8 +22,11 @@ def leaderboard(request, *, track_id=None):
     scores = {x.script_id: x for x in models.Score.objects.filter(track=track)}
     objs = [(s, scores.get(s.id)) for s in scripts]
 
+    best = min(objs, key=lambda x: x[1].scores["time"] if x[1] and x[0].name != "Humans" else float("inf"))[0]
+
     return render(request, "pages/leaderboard.html", {
             "leaders": objs,
+            "best": best,
             "track": track,
             "tracks": models.Track.objects.all().order_by("name"),
             "score_attrs": SCORES_ATTRS,

@@ -31,7 +31,7 @@
     </thead>
     <tbody>
       {% for script, score in leaders %}
-        <tr>
+        <tr class="{% if script.name == 'Humans'%}script-humans{% elif script.id == best.id %}script-best{% endif %}">
           <td><a href="{% url 'app_scripts_view' script.id %}">{{ script.name }}</a></td>
           <td>{{ script.language.name }}</td>
           {% for attr in score_attrs %}
