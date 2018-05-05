@@ -27,11 +27,16 @@ def leaderboard(request, *, track_id=None):
             "track": track,
             "tracks": models.Track.objects.all().order_by("name"),
             "score_attrs": SCORES_ATTRS,
-            "score_titles": SCORES_TITLES
+            "score_titles": SCORES_TITLES,
+            "params": "?track=" + str(track.id)
         })
 
 
 def inheritance(request):
+    if "track" not in request.GET:
+        initial_track = models.Track.objects.all().order_by("name")[0]
+    else:
+        initial_track = get_object_or_404(models.Track, id=request.GET["track"])
     scripts = list(models.Script.objects.all().prefetch_related("parent"))
     tracks = list(models.Track.objects.all().order_by("name"))
     scores = {t.name: {} for t in tracks}
@@ -44,8 +49,9 @@ def inheritance(request):
     return render(request, "pages/inheritance.html", {
             "scripts": {t: sorted(s.items(), key=lambda x: x[0].name) for t, s in scores.items()},
             "tracks": tracks,
+            "track": initial_track.name,
             "score_attrs": SCORES_ATTRS,
-            "score_titles": SCORES_TITLES
+            "score_titles": SCORES_TITLES,
         })
 
 

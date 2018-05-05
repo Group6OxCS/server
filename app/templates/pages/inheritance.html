@@ -206,6 +206,7 @@
 
         $("#tracks button").each(function () {
           if ($(this).attr("value") == track) {
+            $("#leaderboard-button").attr("href", "/leaderboard/" + $(this).attr("value2") + "/")
             $(this).addClass("btn-primary");
             $(this).removeClass("btn-default");
           }
@@ -583,7 +584,7 @@
       })
     {% endfor %}
     ymode = "{{ score_attrs.0 }}";
-    track = "{{ tracks.0 }}"
+    track = "{{ track }}"
   </script>
 {% endblock %}
 
@@ -593,7 +594,7 @@
     Track:<br />
     <div class="btn-group">
       {% for a_track in tracks %}
-        <button class="btn" value="{{ a_track.name }}">{{ a_track.name }}</button>
+        <button class="btn" value="{{ a_track.name }}" value2="{{ a_track.id }}">{{ a_track.name }}</button>
       {% endfor %}
     </div>
   </div>
